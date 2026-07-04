@@ -25,20 +25,12 @@ function t(key){ return (labels[primaryLang()] || labels.en)[key] || key; }
 function escapeHtml(s){ return String(s ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function rawText(obj, l){ return (obj && (obj[l] || obj.en || obj.ua || obj.ru)) || ''; }
 function displayHtml(obj){
-  if (lang === 'en_ua') return `<span class="main-lang">🇬🇧 ${escapeHtml(rawText(obj,'en'))}</span><small class="second-lang">🇺🇦 ${escapeHtml(rawText(obj,'ua'))}</small>`;
-  if (lang === 'en_ru') return `<span class="main-lang">🇬🇧 ${escapeHtml(rawText(obj,'en'))}</span><small class="second-lang">🇷🇺 ${escapeHtml(rawText(obj,'ru'))}</small>`;
-  return `<span class="main-lang">${escapeHtml(rawText(obj, lang))}</span>`;
+  if (lang === 'en_ua') return `<span>${escapeHtml(rawText(obj,'en'))}</span><small>🇺🇦 ${escapeHtml(rawText(obj,'ua'))}</small>`;
+  if (lang === 'en_ru') return `<span>${escapeHtml(rawText(obj,'en'))}</span><small>🇷🇺 ${escapeHtml(rawText(obj,'ru'))}</small>`;
+  return escapeHtml(rawText(obj, lang));
 }
 function plainText(obj){ return rawText(obj, primaryLang()); }
-function shuffle(arr){
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  if (a.length > 1 && a.every((v, i) => v === arr[i])) a.push(a.shift());
-  return a;
-}
+function shuffle(arr){ return [...arr].sort(() => Math.random() - 0.5); }
 function sample(arr, count){ return shuffle(arr).slice(0, Math.min(count, arr.length)); }
 
 function loadProfiles(){
@@ -60,7 +52,7 @@ function initProfiles(){
   const profiles = loadProfiles();
   if (!profiles.includes(currentProfile)) currentProfile = profiles[0] || '';
   localStorage.setItem('itp_profile', currentProfile);
-  $('profileSelect').innerHTML = currentProfile ? profiles.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('') : '<option value="">Create profile first</option>';
+  $('profileSelect').innerHTML = currentProfile ? profiles.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('') : '<option value="">Створи профіль</option>';
   $('profileSelect').value = currentProfile;
 }
 function addProfile(){
@@ -144,7 +136,7 @@ function start(selectedMode){
 function startQuestionByNumber(id){
   if (!requireProfile()) return;
   const q = questions.find(x => Number(x.id) === Number(id));
-  if (!q) return alert('Question not found');
+  if (!q) return alert('Питання не знайдено');
   mode = 'search'; session = [q]; answers = {}; optionOrders = {}; pos = 0; stopTimer(); showQuiz(); render();
 }
 function startTopic(){ currentTopic = $('topicSelect').value; start('all'); }
@@ -166,11 +158,11 @@ function render(){
 
   const saved = answers[q.id];
   $('answers').innerHTML = '';
-  getOrder(q).forEach((originalIdx, displayIdx) => {
+  getOrder(q).forEach(originalIdx => {
     const opt = q.options[originalIdx];
     const btn = document.createElement('button');
     btn.className = 'answer';
-    btn.innerHTML = `<span class="answer-letter">${String.fromCharCode(65 + displayIdx)}</span><span class="answer-text">${displayHtml(opt)}</span>`;
+    btn.innerHTML = displayHtml(opt);
     btn.onclick = () => choose(originalIdx);
     if (saved !== undefined) {
       if (mode !== 'exam40') {
@@ -191,7 +183,7 @@ function render(){
   $('prevBtn').disabled = pos === 0;
   $('nextBtn').textContent = pos === session.length - 1 ? t('finish') : t('next');
 }
-function modeLabel(){ return {random10:'10 Random', random20:'20 Random', exam40:'Official Exam 40 / 45 min', all: currentTopic === 'all' ? 'All Questions' : `Topic: ${$('topicSelect').selectedOptions[0]?.textContent || ''}`, wrong:'Only Mistakes', fav:'Favorites', search:'Search'}[mode] || ''; }
+function modeLabel(){ return {random10:'10 Random', random20:'20 Random', exam40:'Official Exam 40 / 45 min', all: currentTopic === 'all' ? 'Усі питання' : `Тема: ${$('topicSelect').selectedOptions[0]?.textContent || ''}`, wrong:'Мої помилки', fav:'Обране', search:'Пошук'}[mode] || ''; }
 function choose(idx){ const q = session[pos]; answers[q.id] = idx; if (mode !== 'exam40') updateProgress(q, idx); render(); }
 function updateProgress(q, idx){ const data = getData(); data.answered += 1; if (idx === q.correctIndex) { data.correct += 1; delete data.wrong[q.id]; } else data.wrong[q.id] = true; setData(data); }
 function finish(forced=false){
@@ -202,8 +194,8 @@ function finish(forced=false){
   setData(data);
   $('quiz').classList.add('hidden'); $('home').classList.add('hidden'); $('result').classList.remove('hidden');
   $('resultTitle').textContent = isExam ? (pass ? t('pass') : t('fail')) : t('result');
-  $('resultText').innerHTML = `${forced ? `<b>${t('timeout')}</b><br>` : ''}Correct: <b>${correct}/${total}</b><br>Incorrect: <b>${incorrect}</b>${isExam ? `<br>${t('need')}` : ''}${used ? `<br>Time: ${formatTime(used)}` : ''}`;
-  $('resultList').innerHTML = mistakes.slice(0, 50).map(q => `<div class="mini"><b>№${q.id}</b> ${escapeHtml(plainText(q.question))}</div>`).join('') || '<div class="mini">No mistakes 🎉</div>';
+  $('resultText').innerHTML = `${forced ? `<b>${t('timeout')}</b><br>` : ''}Правильно: <b>${correct}/${total}</b><br>Помилок: <b>${incorrect}</b>${isExam ? `<br>${t('need')}` : ''}${used ? `<br>Time: ${formatTime(used)}` : ''}`;
+  $('resultList').innerHTML = mistakes.slice(0, 50).map(q => `<div class="mini"><b>№${q.id}</b> ${escapeHtml(plainText(q.question))}</div>`).join('') || '<div class="mini">Без помилок 🎉</div>';
 }
 function startTimer(){ timeLeft = 45 * 60; examStartedAt = Date.now(); tick(); timerId = setInterval(tick, 1000); }
 function stopTimer(){ if (timerId) clearInterval(timerId); timerId = null; $('timer').classList.add('hidden'); }
@@ -229,7 +221,7 @@ $('backBtn').onclick = showHome; $('homeBtn').onclick = showHome; $('statsHomeBt
 $('favBtn').onclick = () => { const q = session[pos]; const data = getData(); if (data.fav[q.id]) delete data.fav[q.id]; else data.fav[q.id] = true; setData(data); render(); };
 $('lang').value = lang; $('lang').onchange = e => { lang = e.target.value; localStorage.setItem('itp_lang', lang); if (!$('quiz').classList.contains('hidden')) render(); };
 $('themeBtn').onclick = () => { document.body.classList.toggle('dark'); localStorage.setItem('itp_theme', document.body.classList.contains('dark') ? 'dark' : 'light'); };
-$('resetBtn').onclick = () => { if (!currentProfile) return; if (confirm(t('resetConfirm'))) { localStorage.removeItem(profileKey()); alert('Done'); showHome(); } };
+$('resetBtn').onclick = () => { if (!currentProfile) return; if (confirm(t('resetConfirm'))) { localStorage.removeItem(profileKey()); alert('Готово'); showHome(); } };
 $('profileSelect').onchange = e => { currentProfile = e.target.value; localStorage.setItem('itp_profile', currentProfile); showHome(); };
 $('addProfileBtn').onclick = addProfile;
 $('searchBtn').onclick = () => startQuestionByNumber($('searchNumber').value);

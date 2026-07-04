@@ -30,66 +30,67 @@
 
     <section class="panel profile-panel">
       <div>
-        <label>Profile</label>
+        <label>Профіль</label>
         <select id="profileSelect"></select>
       </div>
-      <button id="addProfileBtn" class="ghost">+ Create profile</button>
+      <button id="addProfileBtn" class="ghost">+ Створити профіль</button>
       <div>
-        <label>Language mode</label>
+        <label>Мова</label>
         <select id="lang">
-          <option value="ua">Українська only</option>
-          <option value="en">English only</option>
-          <option value="ru">Russian only</option>
-          <option value="en_ua">English + Ukrainian</option>
-          <option value="en_ru">English + Russian</option>
+          <option value="ua">Українська</option>
+          <option value="en">English</option>
+          <option value="ru">Русский</option>
+          <option value="en_ua">English + Українська</option>
+          <option value="en_ru">English + Русский</option>
         </select>
       </div>
-      <button id="themeBtn" class="ghost">🌙 Theme</button>
-      <button id="resetBtn" class="ghost danger">Reset profile progress</button>
+      <button id="themeBtn" class="ghost">🌙 Тема</button>
+      <button id="resetBtn" class="ghost danger">Скинути прогрес</button>
     </section>
 
     <section id="home" class="home-block">
+      <section class="grid">
+        <button class="mode-card" data-mode="random10"><span>🔟</span><b>10 випадкових питань</b><small>Швидка практика</small></button>
+        <button class="mode-card" data-mode="random20"><span>🎲</span><b>20 випадкових питань</b><small>Більше практики</small></button>
+        <button class="mode-card exam" data-mode="exam40"><span>📝</span><b>Офіційний іспит 40</b><small>45 хв • прохідний 35/40</small></button>
+        <button class="mode-card" data-mode="all"><span>📚</span><b>Усі питання</b><small>Вчити всі питання</small></button>
+        <button class="mode-card" data-mode="wrong"><span>❌</span><b>Мої помилки</b><small>Ваші неправильні відповіді</small></button>
+        <button class="mode-card" data-mode="fav"><span>⭐</span><b>Обране</b><small>Збережені питання</small></button>
+        <button class="mode-card" data-mode="stats"><span>📊</span><b>Статистика</b><small>Ваш прогрес</small></button>
+      </section>
+
       <div class="panel tools-panel">
         <div>
-          <label>Search by question number</label>
+          <label>Пошук за номером питання</label>
           <div class="search-row">
-            <input id="searchNumber" type="number" min="1" max="801" placeholder="e.g. 651" />
-            <button id="searchBtn">Open</button>
+            <input id="searchNumber" type="number" min="1" max="801" placeholder="наприклад 651" />
+            <button id="searchBtn">Відкрити</button>
           </div>
         </div>
         <div>
-          <label>Practice by topic</label>
+          <label>Практика за темою</label>
           <div class="search-row">
             <select id="topicSelect">
-              <option value="all">All topics</option>
-              <option value="signs">Road signs</option>
-              <option value="rules">Rules of the road</option>
-              <option value="speed">Speed limits</option>
-              <option value="parking">Parking</option>
-              <option value="motorway">Motorways</option>
-              <option value="vehicle">Vehicle safety</option>
-              <option value="law">Law, documents & penalties</option>
-              <option value="hazards">Hazards & emergencies</option>
+              <option value="all">Усі теми</option>
+              <option value="signs">Дорожні знаки</option>
+              <option value="rules">Правила дорожнього руху</option>
+              <option value="speed">Обмеження швидкості</option>
+              <option value="parking">Паркування</option>
+              <option value="motorway">Автомагістралі</option>
+              <option value="vehicle">Безпека автомобіля</option>
+              <option value="law">Закон, документи та штрафи</option>
+              <option value="hazards">Небезпеки та аварійні ситуації</option>
             </select>
-            <button id="topicBtn">Start</button>
+            <button id="topicBtn">Почати</button>
           </div>
         </div>
       </div>
 
-      <section class="grid">
-        <button class="mode-card" data-mode="random10"><span>🔟</span><b>10 Random Questions</b><small>Quick practice</small></button>
-        <button class="mode-card" data-mode="random20"><span>🎲</span><b>20 Random Questions</b><small>More practice</small></button>
-        <button class="mode-card exam" data-mode="exam40"><span>📝</span><b>40 Official Exam</b><small>45 min • pass 35/40</small></button>
-        <button class="mode-card" data-mode="all"><span>📚</span><b>All Questions</b><small>Study all questions</small></button>
-        <button class="mode-card" data-mode="wrong"><span>❌</span><b>Only Mistakes</b><small>Your wrong answers</small></button>
-        <button class="mode-card" data-mode="fav"><span>⭐</span><b>Only Favorites</b><small>Saved questions</small></button>
-        <button class="mode-card" data-mode="stats"><span>📊</span><b>Statistics</b><small>Your progress</small></button>
-      </section>
     </section>
 
     <main id="quiz" class="quiz hidden">
       <div class="quiz-top">
-        <button id="backBtn" class="ghost">← Menu</button>
+        <button id="backBtn" class="ghost">← Меню</button>
         <div class="counter"><span id="timer" class="timer hidden">45:00</span><span id="counter">1 / 40</span></div>
         <button id="favBtn" class="star">☆</button>
       </div>
@@ -103,23 +104,23 @@
         <div id="feedback" class="feedback hidden"></div>
       </article>
       <div class="nav">
-        <button id="prevBtn" class="secondary">Back</button>
-        <button id="nextBtn">Next</button>
+        <button id="prevBtn" class="secondary">Назад</button>
+        <button id="nextBtn">Далі</button>
       </div>
     </main>
 
     <section id="result" class="panel result hidden">
-      <h2 id="resultTitle">Result</h2>
+      <h2 id="resultTitle">Результат</h2>
       <p id="resultText"></p>
       <div id="resultList" class="result-list"></div>
-      <button id="homeBtn">Back to menu</button>
+      <button id="homeBtn">Назад to menu</button>
     </section>
 
     <section id="stats" class="panel result hidden">
-      <h2>Statistics</h2>
+      <h2>Статистика</h2>
       <p id="statsText"></p>
       <div id="statsList" class="result-list"></div>
-      <button id="statsHomeBtn">Back to menu</button>
+      <button id="statsHomeBtn">Назад to menu</button>
     </section>
   </div>
   <script src="app.js"></script>
