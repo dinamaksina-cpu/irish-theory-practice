@@ -1,1 +1,85 @@
-<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0f3d34"><title>Irish Theory Practice</title><link rel="stylesheet" href="style.css"></head><body><div class="app"><header class="hero"><div><p class="eyebrow">Irish Driving Theory Test</p><h1>Practice Test</h1><p class="muted">801 питання • картинки підтягуються автоматично</p></div><div class="score"><b id="totalCount">801</b><span>питань</span></div></header><section class="panel setup" id="setup"><label>Мова<select id="lang"><option value="ua">Українська</option><option value="en">English</option><option value="ru">Русский</option></select></label><label>Режим<select id="mode"><option value="all">Всі питання по порядку</option><option value="random">Випадкові питання</option><option value="exam">Іспит 40 питань</option><option value="wrong">Повторити помилки</option><option value="fav">Обране ⭐</option></select></label><button id="startBtn">Почати</button></section><main class="panel quiz hidden" id="quiz"><div class="topbar"><button class="ghost" id="homeBtn">← Меню</button><div id="progressText"></div><button class="ghost" id="favBtn">☆</button></div><div class="progress"><span id="progressBar"></span></div><article class="card"><div class="qid" id="qid"></div><img id="qImage" class="qimage hidden" alt="Question image"><h2 id="question"></h2><div id="options" class="options"></div><div id="feedback" class="feedback hidden"></div></article><div class="actions"><button id="prevBtn" class="secondary">Назад</button><button id="nextBtn">Далі</button></div></main><section class="panel result hidden" id="result"><h2>Результат</h2><p id="resultText"></p><button id="againBtn">Повернутися в меню</button></section></div><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#14382f" />
+  <title>Irish Theory Practice 2.1</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Irish Driving Theory Test</p>
+        <h1>Practice 2.1</h1>
+        <p class="sub">Профілі • помилки окремо • 10/20 random • official exam</p>
+      </div>
+      <div class="pill"><b id="totalCount">801</b><span>questions</span></div>
+    </header>
+
+    <section class="panel profile-panel">
+      <div>
+        <label>Профіль користувача</label>
+        <select id="profileSelect"></select>
+      </div>
+      <div>
+        <label>Мова</label>
+        <select id="lang">
+          <option value="ua">Українська</option>
+          <option value="en">English</option>
+          <option value="ru">Русский</option>
+        </select>
+      </div>
+      <button id="addProfileBtn" class="ghost">+ Додати профіль</button>
+      <button id="themeBtn" class="ghost">🌙 Dark</button>
+      <button id="resetBtn" class="ghost danger">Скинути прогрес профілю</button>
+    </section>
+
+    <section id="home" class="grid">
+      <button class="mode-card" data-mode="random10"><span>🔟</span><b>10 Random</b><small>Швидке тренування</small></button>
+      <button class="mode-card" data-mode="random20"><span>🎲</span><b>20 Random</b><small>Більше практики</small></button>
+      <button class="mode-card exam" data-mode="exam40"><span>📝</span><b>40 Official Exam</b><small>45 хв • pass 35/40</small></button>
+      <button class="mode-card" data-mode="all"><span>📚</span><b>All Questions</b><small>Всі питання по порядку</small></button>
+      <button class="mode-card" data-mode="wrong"><span>❌</span><b>Only Mistakes</b><small>Помилки цього профілю</small></button>
+      <button class="mode-card" data-mode="fav"><span>⭐</span><b>Only Favorites</b><small>Обрані питання</small></button>
+      <button class="mode-card" data-mode="stats"><span>📊</span><b>Statistics</b><small>Результати профілю</small></button>
+    </section>
+
+    <main id="quiz" class="quiz hidden">
+      <div class="quiz-top">
+        <button id="backBtn" class="ghost">← Menu</button>
+        <div class="counter"><span id="timer" class="timer hidden">45:00</span><span id="counter">1 / 40</span></div>
+        <button id="favBtn" class="star">☆</button>
+      </div>
+      <div class="bar"><span id="bar"></span></div>
+      <article class="question-card">
+        <div class="meta"><span id="qid">№</span><span id="modeLabel"></span></div>
+        <img id="qImg" class="qimg hidden" alt="Question image" />
+        <h2 id="question"></h2>
+        <div id="answers" class="answers"></div>
+        <div id="feedback" class="feedback hidden"></div>
+      </article>
+      <div class="nav">
+        <button id="prevBtn" class="secondary">Назад</button>
+        <button id="nextBtn">Далі</button>
+      </div>
+    </main>
+
+    <section id="result" class="panel result hidden">
+      <h2 id="resultTitle">Результат</h2>
+      <p id="resultText"></p>
+      <div id="resultList" class="result-list"></div>
+      <button id="homeBtn">Повернутися в меню</button>
+    </section>
+
+    <section id="stats" class="panel result hidden">
+      <h2>Статистика</h2>
+      <p id="statsText"></p>
+      <div id="statsList" class="result-list"></div>
+      <button id="statsHomeBtn">Повернутися в меню</button>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
