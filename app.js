@@ -5,7 +5,7 @@ let questions = [];
 let session = [];
 let pos = 0;
 let mode = 'all';
-let lang = localStorage.getItem('itp_lang') || 'en_ua';
+let lang = localStorage.getItem('itp_lang') || 'ua';
 let answers = {};
 let optionOrders = {};
 let timerId = null;
@@ -25,12 +25,20 @@ function t(key){ return (labels[primaryLang()] || labels.en)[key] || key; }
 function escapeHtml(s){ return String(s ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function rawText(obj, l){ return (obj && (obj[l] || obj.en || obj.ua || obj.ru)) || ''; }
 function displayHtml(obj){
-  if (lang === 'en_ua') return `<span>${escapeHtml(rawText(obj,'en'))}</span><small>🇺🇦 ${escapeHtml(rawText(obj,'ua'))}</small>`;
-  if (lang === 'en_ru') return `<span>${escapeHtml(rawText(obj,'en'))}</span><small>🇷🇺 ${escapeHtml(rawText(obj,'ru'))}</small>`;
-  return escapeHtml(rawText(obj, lang));
+  if (lang === 'en_ua') return `<span class="main-lang">🇬🇧 ${escapeHtml(rawText(obj,'en'))}</span><small class="second-lang">🇺🇦 ${escapeHtml(rawText(obj,'ua'))}</small>`;
+  if (lang === 'en_ru') return `<span class="main-lang">🇬🇧 ${escapeHtml(rawText(obj,'en'))}</span><small class="second-lang">🇷🇺 ${escapeHtml(rawText(obj,'ru'))}</small>`;
+  return `<span class="main-lang">${escapeHtml(rawText(obj, lang))}</span>`;
 }
 function plainText(obj){ return rawText(obj, primaryLang()); }
-function shuffle(arr){ return [...arr].sort(() => Math.random() - 0.5); }
+function shuffle(arr){
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  if (a.length > 1 && a.every((v, i) => v === arr[i])) a.push(a.shift());
+  return a;
+}
 function sample(arr, count){ return shuffle(arr).slice(0, Math.min(count, arr.length)); }
 
 function loadProfiles(){
@@ -89,7 +97,7 @@ function setQuestionImage(q){
   img.onerror = () => {
     i++;
     if (i < candidates.length) img.src = candidates[i];
-    else { img.classList.add('hidden'); noImage.classList.remove('hidden'); }
+    else { img.classList.add('hidden'); noImage.classList.add('hidden'); }
   };
   img.onload = () => { img.classList.remove('hidden'); noImage.classList.add('hidden'); };
   img.src = candidates[0];
@@ -158,11 +166,11 @@ function render(){
 
   const saved = answers[q.id];
   $('answers').innerHTML = '';
-  getOrder(q).forEach(originalIdx => {
+  getOrder(q).forEach((originalIdx, displayIdx) => {
     const opt = q.options[originalIdx];
     const btn = document.createElement('button');
     btn.className = 'answer';
-    btn.innerHTML = displayHtml(opt);
+    btn.innerHTML = `<span class="answer-letter">${String.fromCharCode(65 + displayIdx)}</span><span class="answer-text">${displayHtml(opt)}</span>`;
     btn.onclick = () => choose(originalIdx);
     if (saved !== undefined) {
       if (mode !== 'exam40') {
