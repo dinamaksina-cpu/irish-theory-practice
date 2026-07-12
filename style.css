@@ -37,3 +37,6 @@ button{border:0;border-radius:16px;background:var(--brand);color:white;padding:1
 .dark .bar{background:#263d36!important}.dark .bar span{background:linear-gradient(90deg,#7ed7a6,#b0e6c7)!important}
 .dark .second-lang{border-color:#38564c!important;color:#c7d8d0!important}
 .dark .error,.dark .danger{color:#ffb4b4!important}
+
+/* v2.5.1 resume and statistics */
+.resume-card{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px}.resume-card div{display:grid;gap:4px}.resume-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}.resume-card b{font-size:18px}.progress-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.stat-box{border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--card)}.stat-box b{display:block;font-size:24px}.stat-box span{color:var(--muted);font-size:12px}.dark .resume-card,.dark .stat-box{background:#14221f!important;border-color:#2f4941!important}.dark .resume-label,.dark .stat-box span{color:#c7d8d0!important}@media(max-width:720px){.resume-card{align-items:stretch;flex-direction:column}.resume-card button{width:100%}.progress-summary{grid-template-columns:1fr 1fr}}

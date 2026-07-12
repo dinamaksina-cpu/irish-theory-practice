@@ -39,8 +39,8 @@ function loadProfiles(){
 }
 function saveProfiles(list){ localStorage.setItem('itp_profiles', JSON.stringify(list)); }
 function profileKey(){ return `itp_data_${currentProfile}`; }
-function defaultData(){ return { wrong:{}, fav:{}, tests:[], answered:0, correct:0 }; }
-function getData(){ return Object.assign(defaultData(), JSON.parse(localStorage.getItem(profileKey()) || '{}')); }
+function defaultData(){ return { wrong:{}, fav:{}, tests:[], answered:0, correct:0, progress:{}, lastQuestion:null }; }
+function getData(){ const saved = JSON.parse(localStorage.getItem(profileKey()) || '{}'); return Object.assign(defaultData(), saved, { progress: saved.progress || {} }); }
 function setData(data){ localStorage.setItem(profileKey(), JSON.stringify(data)); }
 
 function requireProfile(){
@@ -85,14 +85,15 @@ function setQuestionImage(q){
   const candidates = [...new Set(imageCandidates(q))];
   let i = 0;
   noImage.classList.add('hidden');
-  img.classList.remove('hidden');
+  img.classList.add('hidden');
+  img.removeAttribute('src');
   img.onerror = () => {
     i++;
     if (i < candidates.length) img.src = candidates[i];
     else { img.classList.add('hidden'); noImage.classList.add('hidden'); }
   };
   img.onload = () => { img.classList.remove('hidden'); noImage.classList.add('hidden'); };
-  img.src = candidates[0];
+  if (candidates.length) img.src = candidates[0];
 }
 
 function topicFor(q){
@@ -135,18 +136,41 @@ function start(selectedMode){
 }
 function startQuestionByNumber(id){
   if (!requireProfile()) return;
-  const q = questions.find(x => Number(x.id) === Number(id));
-  if (!q) return alert('Питання не знайдено');
-  mode = 'search'; session = [q]; answers = {}; optionOrders = {}; pos = 0; stopTimer(); showQuiz(); render();
+  const sorted = [...questions].sort((a,b)=>a.id-b.id);
+  const index = sorted.findIndex(x => Number(x.id) === Number(id));
+  if (index < 0) return alert('Питання не знайдено');
+  mode = 'search'; session = sorted; answers = {}; optionOrders = {}; pos = index; stopTimer(); showQuiz(); render();
 }
 function startTopic(){ currentTopic = $('topicSelect').value; start('all'); }
 
 function showQuiz(){ $('home').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('quiz').classList.remove('hidden'); }
-function showHome(){ stopTimer(); $('quiz').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('home').classList.remove('hidden'); }
+function showHome(){ stopTimer(); $('quiz').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('home').classList.remove('hidden'); updateResumeCard(); }
+
+function saveLastQuestion(q){
+  if (!currentProfile || !q || !['all','search'].includes(mode)) return;
+  const data = getData();
+  data.lastQuestion = Number(q.id);
+  setData(data);
+  updateResumeCard();
+}
+function updateResumeCard(){
+  const card = $('resumeCard');
+  if (!card) return;
+  if (!currentProfile) { card.classList.add('hidden'); return; }
+  const last = Number(getData().lastQuestion || 0);
+  if (!last) { card.classList.add('hidden'); return; }
+  $('resumeText').textContent = `Останнє питання: №${last}`;
+  card.classList.remove('hidden');
+}
+function continueLastQuestion(){
+  const last = Number(getData().lastQuestion || 0);
+  if (last) startQuestionByNumber(last);
+}
 
 function render(){
   const q = session[pos];
   const data = getData();
+  saveLastQuestion(q);
   $('counter').textContent = `${pos + 1} / ${session.length}`;
   $('bar').style.width = `${((pos + 1) / session.length) * 100}%`;
   $('qid').textContent = `№ ${q.id}`;
@@ -185,10 +209,20 @@ function render(){
 }
 function modeLabel(){ return {random10:'10 Random', random20:'20 Random', exam40:'Official Exam 40 / 45 min', all: currentTopic === 'all' ? 'Усі питання' : `Тема: ${$('topicSelect').selectedOptions[0]?.textContent || ''}`, wrong:'Мої помилки', fav:'Обране', search:'Пошук'}[mode] || ''; }
 function choose(idx){ const q = session[pos]; answers[q.id] = idx; if (mode !== 'exam40') updateProgress(q, idx); render(); }
-function updateProgress(q, idx){ const data = getData(); data.answered += 1; if (idx === q.correctIndex) { data.correct += 1; delete data.wrong[q.id]; } else data.wrong[q.id] = true; setData(data); }
+function applyProgress(data, q, idx){
+  data.progress = data.progress || {};
+  data.progress[q.id] = idx === q.correctIndex;
+  data.answered = (data.answered || 0) + 1;
+  if (idx === q.correctIndex) {
+    data.correct = (data.correct || 0) + 1;
+    delete data.wrong[q.id];
+  } else data.wrong[q.id] = true;
+  return data;
+}
+function updateProgress(q, idx){ const data = applyProgress(getData(), q, idx); setData(data); }
 function finish(forced=false){
   stopTimer(); let correct = 0; const data = getData(); const mistakes = [];
-  session.forEach(q => { const ans = answers[q.id]; const ok = ans === q.correctIndex; if (ok) correct++; if (ans !== undefined) updateProgress(q, ans); if (!ok) { data.wrong[q.id] = true; mistakes.push(q); } else delete data.wrong[q.id]; });
+  session.forEach(q => { const ans = answers[q.id]; const ok = ans === q.correctIndex; if (ok) correct++; if (ans !== undefined) applyProgress(data, q, ans); if (!ok) { data.wrong[q.id] = true; mistakes.push(q); } else delete data.wrong[q.id]; });
   const total = session.length; const incorrect = total - correct; const isExam = mode === 'exam40'; const pass = !isExam || correct >= 35; const used = examStartedAt ? Math.round((Date.now() - examStartedAt) / 1000) : null;
   if (isExam) data.tests.push({date:new Date().toISOString(), correct, total, incorrect, pass, seconds: used});
   setData(data);
@@ -203,11 +237,34 @@ function tick(){ $('timer').textContent = formatTime(timeLeft); if (timeLeft <= 
 function formatTime(sec){ const m = Math.floor(sec/60); const s = sec%60; return `${m}:${String(s).padStart(2,'0')}`; }
 function showStats(){
   if (!requireProfile()) return;
-  const data = getData(); const tests = data.tests || []; const best = tests.length ? Math.max(...tests.map(t => t.correct)) : 0; const avg = tests.length ? (tests.reduce((a,t)=>a+t.correct,0)/tests.length).toFixed(1) : 0;
+  const data = getData();
+  const tests = data.tests || [];
+  const progress = data.progress || {};
+  const completed = Object.keys(progress).length;
+  const correctUnique = Object.values(progress).filter(Boolean).length;
+  const incorrectUnique = completed - correctUnique;
+  const progressPct = questions.length ? ((completed / questions.length) * 100).toFixed(1) : '0.0';
+  const accuracy = completed ? ((correctUnique / completed) * 100).toFixed(1) : '0.0';
+  const best = tests.length ? Math.max(...tests.map(t => t.correct)) : 0;
+  const avg = tests.length ? (tests.reduce((a,t)=>a+t.correct,0)/tests.length).toFixed(1) : 0;
   $('home').classList.add('hidden'); $('quiz').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.remove('hidden');
-  $('statsText').innerHTML = `<b>Profile:</b> ${escapeHtml(currentProfile)}<br><b>Wrong questions:</b> ${Object.keys(data.wrong||{}).length}<br><b>Favorites:</b> ${Object.keys(data.fav||{}).length}<br><b>Official exams:</b> ${tests.length}<br><b>Best:</b> ${best}/40<br><b>Average:</b> ${avg}/40`;
-  $('statsList').innerHTML = tests.slice(-10).reverse().map(t => `<div class="mini">${new Date(t.date).toLocaleDateString()} — <b>${t.correct}/${t.total}</b> ${t.pass ? 'PASS ✅' : 'FAIL ❌'} ${t.seconds ? `(${formatTime(t.seconds)})` : ''}</div>`).join('') || '<div class="mini">No exam results yet</div>';
+  $('statsText').innerHTML = `
+    <b>Профіль:</b> ${escapeHtml(currentProfile)}
+    <div class="progress-summary">
+      <div class="stat-box"><b>${completed}/${questions.length}</b><span>Пройдено питань</span></div>
+      <div class="stat-box"><b>${progressPct}%</b><span>Прогрес</span></div>
+      <div class="stat-box"><b>${correctUnique}</b><span>Правильних</span></div>
+      <div class="stat-box"><b>${accuracy}%</b><span>Точність</span></div>
+    </div>
+    <b>Неправильних:</b> ${incorrectUnique}<br>
+    <b>Питань у помилках:</b> ${Object.keys(data.wrong||{}).length}<br>
+    <b>Обране:</b> ${Object.keys(data.fav||{}).length}<br>
+    <b>Офіційних іспитів:</b> ${tests.length}<br>
+    <b>Найкращий результат:</b> ${best}/40<br>
+    <b>Середній результат:</b> ${avg}/40`;
+  $('statsList').innerHTML = tests.slice(-10).reverse().map(t => `<div class="mini">${new Date(t.date).toLocaleDateString()} — <b>${t.correct}/${t.total}</b> ${t.pass ? 'PASS ✅' : 'FAIL ❌'} ${t.seconds ? `(${formatTime(t.seconds)})` : ''}</div>`).join('') || '<div class="mini">Результатів іспитів поки немає</div>';
 }
+
 function checkAccess(){
   if (localStorage.getItem('itp_access_ok') === 'yes') { $('accessScreen').classList.add('hidden'); $('appShell').classList.remove('hidden'); return; }
   $('accessScreen').classList.remove('hidden'); $('appShell').classList.add('hidden');
@@ -227,8 +284,9 @@ $('addProfileBtn').onclick = addProfile;
 $('searchBtn').onclick = () => startQuestionByNumber($('searchNumber').value);
 $('searchNumber').addEventListener('keydown', e => { if (e.key === 'Enter') $('searchBtn').click(); });
 $('topicBtn').onclick = startTopic;
+$('resumeBtn').onclick = continueLastQuestion;
 document.querySelectorAll('[data-mode]').forEach(btn => btn.onclick = () => start(btn.dataset.mode));
 if (localStorage.getItem('itp_theme') === 'dark') document.body.classList.add('dark');
 
 checkAccess();
-fetch('questions.json').then(r => r.json()).then(data => { questions = data; $('totalCount').textContent = questions.length; initProfiles(); }).catch(() => alert('Could not load questions.json'));
+fetch('questions.json').then(r => r.json()).then(data => { questions = data; $('totalCount').textContent = questions.length; initProfiles(); updateResumeCard(); }).catch(() => alert('Could not load questions.json'));
