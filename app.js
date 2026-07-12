@@ -265,7 +265,7 @@ function toggleFlag(){
   render();
 }
 function modeLabel(){ return {random10:'10 Random', random20:'20 Random', exam40:'Official Exam 40 / 45 min', all: currentTopic === 'all' ? 'Усі питання' : `Тема: ${$('topicSelect').selectedOptions[0]?.textContent || ''}`, wrong:'Мої помилки', fav:'Обране', search:'Пошук'}[mode] || ''; }
-function choose(idx){ const q = session[pos]; if (mode === 'exam40' && answers[q.id] !== undefined) return; answers[q.id] = idx; if (mode !== 'exam40') updateProgress(q, idx); render(); }
+function choose(idx){ const q = session[pos]; answers[q.id] = idx; if (mode !== 'exam40') updateProgress(q, idx); render(); }
 function applyProgress(data, q, idx){
   data.progress = data.progress || {};
   data.progress[q.id] = idx === q.correctIndex;
