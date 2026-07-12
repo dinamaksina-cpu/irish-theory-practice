@@ -17,9 +17,9 @@ let flagged = {};
 let lastExamMistakes = [];
 
 const labels = {
-  ua: {empty:'Тут поки немає питань', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далі', finish:'Завершити', back:'Назад', pass:'СКЛАДЕНО ✅', fail:'НЕ СКЛАДЕНО ❌', result:'Результат', need:'Потрібно мінімум 35 правильних відповідей із 40.', timeout:'Час завершився.', resetConfirm:'Скинути прогрес тільки для цього профілю?', addProfile:'Введи ім’я нового профілю', correctCount:'Правильно', mistakes:'Помилок', unanswered:'Без відповіді', score:'Результат', usedTime:'Використаний час', yourAnswer:'Ваша відповідь', rightAnswer:'Правильна відповідь', noAnswer:'Без відповіді', noMistakes:'Без помилок 🎉', questionWord:'Питання', ofWord:'із'},
-  en: {empty:'No questions here yet', correct:'Correct ✅', wrong:'Wrong ❌', next:'Next', finish:'Finish', back:'Back', pass:'PASS ✅', fail:'FAIL ❌', result:'Result', need:'You need at least 35 correct answers out of 40.', timeout:'Time is up.', resetConfirm:'Reset progress only for this profile?', addProfile:'Enter new profile name', correctCount:'Correct', mistakes:'Mistakes', unanswered:'Unanswered', score:'Score', usedTime:'Time used', yourAnswer:'Your answer', rightAnswer:'Correct answer', noAnswer:'Unanswered', noMistakes:'No mistakes 🎉', questionWord:'Question', ofWord:'of'},
-  ru: {empty:'Здесь пока нет вопросов', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далее', finish:'Завершить', back:'Назад', pass:'СДАНО ✅', fail:'НЕ СДАНО ❌', result:'Результат', need:'Нужно минимум 35 правильных ответов из 40.', timeout:'Время закончилось.', resetConfirm:'Сбросить прогресс только для этого профиля?', addProfile:'Введите имя нового профиля', correctCount:'Правильно', mistakes:'Ошибок', unanswered:'Без ответа', score:'Результат', usedTime:'Использованное время', yourAnswer:'Ваш ответ', rightAnswer:'Правильный ответ', noAnswer:'Без ответа', noMistakes:'Без ошибок 🎉', questionWord:'Вопрос', ofWord:'из'}
+  ua: {empty:'Тут поки немає питань', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далі', finish:'Завершити', back:'Назад', pass:'СКЛАДЕНО ✅', fail:'НЕ СКЛАДЕНО ❌', result:'Результат', need:'Потрібно мінімум 35 правильних відповідей із 40.', timeout:'Час завершився.', resetConfirm:'Скинути прогрес тільки для цього профілю?', addProfile:'Введи ім’я нового профілю', correctCount:'Правильно', mistakes:'Помилок', unanswered:'Без відповіді', score:'Результат', usedTime:'Використаний час', yourAnswer:'Ваша відповідь', rightAnswer:'Правильна відповідь', noAnswer:'Без відповіді', noMistakes:'Без помилок 🎉', questionWord:'Питання', ofWord:'із', home:'На головну'},
+  en: {empty:'No questions here yet', correct:'Correct ✅', wrong:'Wrong ❌', next:'Next', finish:'Finish', back:'Back', pass:'PASS ✅', fail:'FAIL ❌', result:'Result', need:'You need at least 35 correct answers out of 40.', timeout:'Time is up.', resetConfirm:'Reset progress only for this profile?', addProfile:'Enter new profile name', correctCount:'Correct', mistakes:'Mistakes', unanswered:'Unanswered', score:'Score', usedTime:'Time used', yourAnswer:'Your answer', rightAnswer:'Correct answer', noAnswer:'Unanswered', noMistakes:'No mistakes 🎉', questionWord:'Question', ofWord:'of', home:'Back to home'},
+  ru: {empty:'Здесь пока нет вопросов', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далее', finish:'Завершить', back:'Назад', pass:'СДАНО ✅', fail:'НЕ СДАНО ❌', result:'Результат', need:'Нужно минимум 35 правильных ответов из 40.', timeout:'Время закончилось.', resetConfirm:'Сбросить прогресс только для этого профиля?', addProfile:'Введите имя нового профиля', correctCount:'Правильно', mistakes:'Ошибок', unanswered:'Без ответа', score:'Результат', usedTime:'Использованное время', yourAnswer:'Ваш ответ', rightAnswer:'Правильный ответ', noAnswer:'Без ответа', noMistakes:'Без ошибок 🎉', questionWord:'Вопрос', ofWord:'из', home:'На главную'}
 };
 
 function primaryLang(){ return lang.startsWith('en') ? 'en' : lang; }
@@ -233,6 +233,7 @@ function render(){
   $('bar').style.width = `${((pos + 1) / session.length) * 100}%`;
   $('qid').textContent = mode === 'exam40' ? `${bilingualLabel('questionWord')} ${pos + 1} ${bilingualLabel('ofWord')} ${session.length}` : `№ ${q.id}`;
   $('modeLabel').textContent = modeLabel();
+  $('quizHomeBtn').textContent = `← ${bilingualLabel('home')}`;
   $('question').innerHTML = displayHtml(q.question);
   $('favBtn').textContent = data.fav[q.id] ? '★' : '☆';
   $('favBtn').classList.toggle('hidden', mode === 'exam40');
@@ -396,6 +397,7 @@ $('settingsBtn').onclick = openSettings;
 $('settingsCloseBtn').onclick = closeSettings;
 $('settingsBackdrop').onclick = closeSettings;
 $('settingsHomeBtn').onclick = showHome;
+$('quizHomeBtn').onclick = showHome;
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSettings(); });
 
 $('accessBtn').onclick = () => { if ($('accessCode').value.trim() === ACCESS_CODE) { localStorage.setItem('itp_access_ok','yes'); checkAccess(); } else $('accessError').classList.remove('hidden'); };

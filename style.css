@@ -81,3 +81,9 @@ body.focus-mode #backBtn{display:none!important}
   body.focus-mode .counter{font-size:13px;gap:6px}
   body.focus-mode .question-card{padding:4px;scroll-margin-top:72px}
 }
+
+
+/* v2.6.1 direct return-to-home button below every quiz */
+.quiz-home{display:block;width:100%;margin-top:14px}
+body.focus-mode .quiz-home{margin-top:16px}
+.dark .quiz-home{background:#0f1a18!important;color:#b0e6c7!important;border-color:#38564c!important}
