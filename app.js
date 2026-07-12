@@ -17,13 +17,18 @@ let flagged = {};
 let lastExamMistakes = [];
 
 const labels = {
-  ua: {empty:'Тут поки немає питань', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далі', finish:'Завершити', back:'Назад', pass:'PASS ✅', fail:'FAIL ❌', result:'Результат', need:'Потрібно мінімум 35 правильних відповідей із 40.', timeout:'Час завершився.', resetConfirm:'Скинути прогрес тільки для цього профілю?', addProfile:'Введи ім’я нового профілю'},
-  en: {empty:'No questions here yet', correct:'Correct ✅', wrong:'Wrong ❌', next:'Next', finish:'Finish', back:'Back', pass:'PASS ✅', fail:'FAIL ❌', result:'Result', need:'You need at least 35 correct answers out of 40.', timeout:'Time is up.', resetConfirm:'Reset progress only for this profile?', addProfile:'Enter new profile name'},
-  ru: {empty:'Здесь пока нет вопросов', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далее', finish:'Завершить', back:'Назад', pass:'PASS ✅', fail:'FAIL ❌', result:'Результат', need:'Нужно минимум 35 правильных ответов из 40.', timeout:'Время закончилось.', resetConfirm:'Сбросить прогресс только для этого профиля?', addProfile:'Введите имя нового профиля'}
+  ua: {empty:'Тут поки немає питань', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далі', finish:'Завершити', back:'Назад', pass:'СКЛАДЕНО ✅', fail:'НЕ СКЛАДЕНО ❌', result:'Результат', need:'Потрібно мінімум 35 правильних відповідей із 40.', timeout:'Час завершився.', resetConfirm:'Скинути прогрес тільки для цього профілю?', addProfile:'Введи ім’я нового профілю', correctCount:'Правильно', mistakes:'Помилок', unanswered:'Без відповіді', score:'Результат', usedTime:'Використаний час', yourAnswer:'Ваша відповідь', rightAnswer:'Правильна відповідь', noAnswer:'Без відповіді', noMistakes:'Без помилок 🎉', questionWord:'Питання', ofWord:'із'},
+  en: {empty:'No questions here yet', correct:'Correct ✅', wrong:'Wrong ❌', next:'Next', finish:'Finish', back:'Back', pass:'PASS ✅', fail:'FAIL ❌', result:'Result', need:'You need at least 35 correct answers out of 40.', timeout:'Time is up.', resetConfirm:'Reset progress only for this profile?', addProfile:'Enter new profile name', correctCount:'Correct', mistakes:'Mistakes', unanswered:'Unanswered', score:'Score', usedTime:'Time used', yourAnswer:'Your answer', rightAnswer:'Correct answer', noAnswer:'Unanswered', noMistakes:'No mistakes 🎉', questionWord:'Question', ofWord:'of'},
+  ru: {empty:'Здесь пока нет вопросов', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далее', finish:'Завершить', back:'Назад', pass:'СДАНО ✅', fail:'НЕ СДАНО ❌', result:'Результат', need:'Нужно минимум 35 правильных ответов из 40.', timeout:'Время закончилось.', resetConfirm:'Сбросить прогресс только для этого профиля?', addProfile:'Введите имя нового профиля', correctCount:'Правильно', mistakes:'Ошибок', unanswered:'Без ответа', score:'Результат', usedTime:'Использованное время', yourAnswer:'Ваш ответ', rightAnswer:'Правильный ответ', noAnswer:'Без ответа', noMistakes:'Без ошибок 🎉', questionWord:'Вопрос', ofWord:'из'}
 };
 
 function primaryLang(){ return lang.startsWith('en') ? 'en' : lang; }
 function t(key){ return (labels[primaryLang()] || labels.en)[key] || key; }
+function bilingualLabel(key){
+  if (lang === 'en_ua') return `${labels.en[key]} / ${labels.ua[key]}`;
+  if (lang === 'en_ru') return `${labels.en[key]} / ${labels.ru[key]}`;
+  return t(key);
+}
 function escapeHtml(s){ return String(s ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function rawText(obj, l){ return (obj && (obj[l] || obj.en || obj.ua || obj.ru)) || ''; }
 function displayHtml(obj){
@@ -198,15 +203,14 @@ function render(){
   saveLastQuestion(q);
   $('counter').textContent = `${pos + 1} / ${session.length}`;
   $('bar').style.width = `${((pos + 1) / session.length) * 100}%`;
-  $('qid').textContent = `№ ${q.id}`;
+  $('qid').textContent = mode === 'exam40' ? `${bilingualLabel('questionWord')} ${pos + 1} ${bilingualLabel('ofWord')} ${session.length}` : `№ ${q.id}`;
   $('modeLabel').textContent = modeLabel();
   $('question').innerHTML = displayHtml(q.question);
   $('favBtn').textContent = data.fav[q.id] ? '★' : '☆';
   $('favBtn').classList.toggle('hidden', mode === 'exam40');
-  $('flagBtn').classList.toggle('hidden', mode !== 'exam40');
-  $('flagBtn').textContent = flagged[q.id] ? '🚩' : '⚑';
+  $('flagBtn').classList.add('hidden');
   $('timer').classList.toggle('hidden', mode !== 'exam40');
-  $('examNavigator').classList.toggle('hidden', mode !== 'exam40');
+  $('examNavigator').classList.add('hidden');
   $('finishExamBtn').classList.toggle('hidden', mode !== 'exam40');
   setQuestionImage(q);
 
@@ -234,9 +238,16 @@ function render(){
     $('feedback').className = `feedback ${ok ? 'good' : 'bad'}`;
     $('feedback').innerHTML = ok ? t('correct') : `${t('wrong')}<br><b>Correct answer:</b> ${displayHtml(q.options[q.correctIndex])}`;
   }
-  $('prevBtn').disabled = pos === 0;
-  $('nextBtn').textContent = pos === session.length - 1 ? (mode === 'exam40' ? 'Перевірити та завершити' : t('finish')) : t('next');
-  if (mode === 'exam40') renderExamNavigator();
+  if (mode === 'exam40') {
+    $('prevBtn').classList.add('hidden');
+    $('nextBtn').disabled = saved === undefined;
+    $('nextBtn').textContent = pos === session.length - 1 ? t('finish') : t('next');
+  } else {
+    $('prevBtn').classList.remove('hidden');
+    $('prevBtn').disabled = pos === 0;
+    $('nextBtn').disabled = false;
+    $('nextBtn').textContent = pos === session.length - 1 ? t('finish') : t('next');
+  }
 }
 function renderExamNavigator(){
   $('examNavigator').innerHTML = session.map((q,i) => {
@@ -254,7 +265,7 @@ function toggleFlag(){
   render();
 }
 function modeLabel(){ return {random10:'10 Random', random20:'20 Random', exam40:'Official Exam 40 / 45 min', all: currentTopic === 'all' ? 'Усі питання' : `Тема: ${$('topicSelect').selectedOptions[0]?.textContent || ''}`, wrong:'Мої помилки', fav:'Обране', search:'Пошук'}[mode] || ''; }
-function choose(idx){ const q = session[pos]; answers[q.id] = idx; if (mode !== 'exam40') updateProgress(q, idx); render(); }
+function choose(idx){ const q = session[pos]; if (mode === 'exam40' && answers[q.id] !== undefined) return; answers[q.id] = idx; if (mode !== 'exam40') updateProgress(q, idx); render(); }
 function applyProgress(data, q, idx){
   data.progress = data.progress || {};
   data.progress[q.id] = idx === q.correctIndex;
@@ -302,14 +313,15 @@ function finish(forced=false){
   $('home').classList.add('hidden');
   $('examIntro').classList.add('hidden');
   $('result').classList.remove('hidden');
-  $('resultTitle').textContent = isExam ? (pass ? t('pass') : t('fail')) : t('result');
+  $('resultTitle').textContent = isExam ? (pass ? bilingualLabel('pass') : bilingualLabel('fail')) : bilingualLabel('result');
   const pct = total ? Math.round(correct/total*100) : 0;
-  $('resultText').innerHTML = `${forced ? `<b>${t('timeout')}</b><br>` : ''}Правильно: <b>${correct}/${total}</b><br>Помилок: <b>${incorrect}</b><br>Без відповіді: <b>${unanswered}</b><br>Результат: <b>${pct}%</b>${isExam ? `<br>${t('need')}` : ''}${used !== null ? `<br>Використаний час: ${formatTime(used)}` : ''}`;
+  $('resultText').innerHTML = `${forced ? `<b>${bilingualLabel('timeout')}</b><br>` : ''}${bilingualLabel('correctCount')}: <b>${correct}/${total}</b><br>${bilingualLabel('mistakes')}: <b>${incorrect}</b><br>${bilingualLabel('unanswered')}: <b>${unanswered}</b><br>${bilingualLabel('score')}: <b>${pct}%</b>${isExam ? `<br>${bilingualLabel('need')}` : ''}${used !== null ? `<br>${bilingualLabel('usedTime')}: ${formatTime(used)}` : ''}`;
   $('resultList').innerHTML = mistakes.length ? mistakes.map(({q,ans}) => {
-    const your = ans === undefined ? 'Без відповіді' : escapeHtml(plainText(q.options[ans]));
-    const right = escapeHtml(plainText(q.options[q.correctIndex]));
-    return `<details class="mistake-detail"><summary><b>№${q.id}</b> ${escapeHtml(plainText(q.question))}</summary><p><b>Ваша відповідь:</b> ${your}</p><p><b>Правильна відповідь:</b> ${right}</p></details>`;
-  }).join('') : '<div class="mini">Без помилок 🎉</div>';
+    const examNumber = session.findIndex(item => item.id === q.id) + 1;
+    const your = ans === undefined ? bilingualLabel('noAnswer') : displayHtml(q.options[ans]);
+    const right = displayHtml(q.options[q.correctIndex]);
+    return `<details class="mistake-detail"><summary><b>${bilingualLabel('questionWord')} ${examNumber}</b> ${displayHtml(q.question)}</summary><p><b>${bilingualLabel('yourAnswer')}:</b> ${your}</p><p><b>${bilingualLabel('rightAnswer')}:</b> ${right}</p></details>`;
+  }).join('') : `<div class="mini">${bilingualLabel('noMistakes')}</div>`;
 }
 function startTimer(){ timeLeft = 45 * 60; examStartedAt = Date.now(); tick(); timerId = setInterval(tick, 1000); }
 function stopTimer(){ if (timerId) clearInterval(timerId); timerId = null; $('timer').classList.add('hidden'); }
@@ -352,8 +364,8 @@ function checkAccess(){
 
 $('accessBtn').onclick = () => { if ($('accessCode').value.trim() === ACCESS_CODE) { localStorage.setItem('itp_access_ok','yes'); checkAccess(); } else $('accessError').classList.remove('hidden'); };
 $('accessCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('accessBtn').click(); });
-$('nextBtn').onclick = () => { if (pos < session.length - 1) { pos++; render(); } else requestFinish(); };
-$('prevBtn').onclick = () => { if (pos > 0) { pos--; render(); } };
+$('nextBtn').onclick = () => { if (mode === 'exam40' && answers[session[pos].id] === undefined) return; if (pos < session.length - 1) { pos++; render(); window.scrollTo({top:0,behavior:'smooth'}); } else requestFinish(); };
+$('prevBtn').onclick = () => { if (mode === 'exam40') return; if (pos > 0) { pos--; render(); } };
 $('backBtn').onclick = () => { if (mode === 'exam40' && !confirm('Вийти з іспиту? Поточна спроба не буде збережена.')) return; showHome(); }; $('homeBtn').onclick = showHome; $('statsHomeBtn').onclick = showHome;
 $('examStartBtn').onclick = beginExam;
 $('examIntroHomeBtn').onclick = showHome;
