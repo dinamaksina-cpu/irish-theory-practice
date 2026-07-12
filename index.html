@@ -28,7 +28,11 @@
       <div class="pill"><b id="totalCount">801</b><span>questions</span></div>
     </header>
 
-    <section class="panel profile-panel">
+    <section id="settingsPanel" class="panel profile-panel">
+      <div class="settings-panel-head">
+        <b>⚙️ Налаштування</b>
+        <button id="settingsCloseBtn" class="ghost settings-close" type="button">✕</button>
+      </div>
       <div>
         <label>Профіль</label>
         <select id="profileSelect"></select>
@@ -46,7 +50,9 @@
       </div>
       <button id="themeBtn" class="ghost">🌙 Тема</button>
       <button id="resetBtn" class="ghost danger">Скинути прогрес</button>
+      <button id="settingsHomeBtn" class="ghost settings-home" type="button">🏠 На головну</button>
     </section>
+    <div id="settingsBackdrop" class="settings-backdrop hidden"></div>
 
     <section id="home" class="home-block">
       <section id="resumeCard" class="panel resume-card hidden">
@@ -120,7 +126,8 @@
 
     <main id="quiz" class="quiz hidden">
       <div class="quiz-top">
-        <button id="backBtn" class="ghost">← Меню</button>
+        <button id="settingsBtn" class="ghost settings-trigger">⚙️ Налаштування</button>
+        <button id="backBtn" class="ghost hidden">← Меню</button>
         <div class="counter"><span id="timer" class="timer hidden">45:00</span><span id="counter">1 / 40</span></div>
         <div class="quiz-actions"><button id="flagBtn" class="star hidden" title="Позначити для перегляду">⚑</button><button id="favBtn" class="star">☆</button></div>
       </div>

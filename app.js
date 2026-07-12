@@ -173,8 +173,36 @@ function startQuestionByNumber(id){
 }
 function startTopic(){ currentTopic = $('topicSelect').value; start('all'); }
 
-function showQuiz(){ $('home').classList.add('hidden'); $('examIntro').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('quiz').classList.remove('hidden'); }
-function showHome(){ stopTimer(); $('quiz').classList.add('hidden'); $('examIntro').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('home').classList.remove('hidden'); updateResumeCard(); }
+function setFocusMode(enabled){
+  document.body.classList.toggle('focus-mode', enabled);
+  if (!enabled) closeSettings();
+}
+function openSettings(){
+  $('settingsPanel').classList.add('open');
+  $('settingsBackdrop').classList.remove('hidden');
+  document.body.classList.add('settings-open');
+}
+function closeSettings(){
+  $('settingsPanel').classList.remove('open');
+  $('settingsBackdrop').classList.add('hidden');
+  document.body.classList.remove('settings-open');
+}
+function scrollToQuestion(behavior='smooth'){
+  const target = document.querySelector('#quiz .question-card');
+  if (!target) return;
+  requestAnimationFrame(() => {
+    const top = target.getBoundingClientRect().top + window.scrollY - 12;
+    window.scrollTo({top: Math.max(0, top), behavior});
+  });
+}
+function showQuiz(){
+  $('home').classList.add('hidden'); $('examIntro').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('quiz').classList.remove('hidden');
+  setFocusMode(true);
+  setTimeout(() => scrollToQuestion('auto'), 0);
+}
+function showHome(){
+  stopTimer(); setFocusMode(false); $('quiz').classList.add('hidden'); $('examIntro').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('home').classList.remove('hidden'); updateResumeCard(); window.scrollTo({top:0,behavior:'smooth'});
+}
 
 function saveLastQuestion(q){
   if (!currentProfile || !q || !['all','search'].includes(mode)) return;
@@ -309,6 +337,7 @@ function finish(forced=false){
   if (isExam) data.tests.push({date:new Date().toISOString(), correct, total, incorrect, unanswered, pass, seconds:used});
   setData(data);
   lastExamMistakes = mistakes;
+  setFocusMode(false);
   $('quiz').classList.add('hidden');
   $('home').classList.add('hidden');
   $('examIntro').classList.add('hidden');
@@ -329,6 +358,7 @@ function tick(){ $('timer').textContent = formatTime(Math.max(0,timeLeft)); if (
 function formatTime(sec){ const m = Math.floor(sec/60); const s = sec%60; return `${m}:${String(s).padStart(2,'0')}`; }
 function showStats(){
   if (!requireProfile()) return;
+  setFocusMode(false);
   const data = getData();
   const tests = data.tests || [];
   const progress = data.progress || {};
@@ -362,10 +392,16 @@ function checkAccess(){
   $('accessScreen').classList.remove('hidden'); $('appShell').classList.add('hidden');
 }
 
+$('settingsBtn').onclick = openSettings;
+$('settingsCloseBtn').onclick = closeSettings;
+$('settingsBackdrop').onclick = closeSettings;
+$('settingsHomeBtn').onclick = showHome;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSettings(); });
+
 $('accessBtn').onclick = () => { if ($('accessCode').value.trim() === ACCESS_CODE) { localStorage.setItem('itp_access_ok','yes'); checkAccess(); } else $('accessError').classList.remove('hidden'); };
 $('accessCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('accessBtn').click(); });
-$('nextBtn').onclick = () => { if (mode === 'exam40' && answers[session[pos].id] === undefined) return; if (pos < session.length - 1) { pos++; render(); window.scrollTo({top:0,behavior:'smooth'}); } else requestFinish(); };
-$('prevBtn').onclick = () => { if (mode === 'exam40') return; if (pos > 0) { pos--; render(); } };
+$('nextBtn').onclick = () => { if (mode === 'exam40' && answers[session[pos].id] === undefined) return; if (pos < session.length - 1) { pos++; render(); scrollToQuestion(); } else requestFinish(); };
+$('prevBtn').onclick = () => { if (mode === 'exam40') return; if (pos > 0) { pos--; render(); scrollToQuestion(); } };
 $('backBtn').onclick = () => { if (mode === 'exam40' && !confirm('Вийти з іспиту? Поточна спроба не буде збережена.')) return; showHome(); }; $('homeBtn').onclick = showHome; $('statsHomeBtn').onclick = showHome;
 $('examStartBtn').onclick = beginExam;
 $('examIntroHomeBtn').onclick = showHome;

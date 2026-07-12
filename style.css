@@ -48,3 +48,36 @@ button{border:0;border-radius:16px;background:var(--brand);color:white;padding:1
 /* v2.5.4 locked official exam flow */
 button:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 #quiz.exam-locked .exam-navigator{display:none!important}
+
+
+/* v2.6 focus mode: compact test screen on phone, tablet and desktop */
+.settings-panel-head,.settings-home{display:none}
+.settings-trigger{white-space:nowrap}
+.settings-backdrop{position:fixed;inset:0;background:rgba(3,12,10,.52);backdrop-filter:blur(3px);z-index:90}
+body.settings-open{overflow:hidden}
+body.focus-mode .shell{max-width:980px;padding-top:12px}
+body.focus-mode .hero{display:none}
+body.focus-mode #settingsPanel.profile-panel{
+  position:fixed;top:0;right:0;bottom:0;z-index:100;width:min(390px,92vw);margin:0;padding:20px;
+  border-radius:24px 0 0 24px;display:flex;align-content:flex-start;align-items:stretch;flex-direction:column;flex-wrap:nowrap;
+  gap:14px;overflow-y:auto;transform:translateX(105%);transition:transform .22s ease;box-shadow:-18px 0 50px rgba(0,0,0,.24)
+}
+body.focus-mode #settingsPanel.profile-panel.open{transform:translateX(0)}
+body.focus-mode #settingsPanel .settings-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;font-size:20px;margin-bottom:4px}
+body.focus-mode #settingsPanel .settings-close{display:inline-flex;width:auto;padding:9px 12px}
+body.focus-mode #settingsPanel .settings-home{display:block;width:100%;margin-top:auto}
+body.focus-mode #settingsPanel>div:not(.settings-panel-head){width:100%}
+body.focus-mode #settingsPanel select,body.focus-mode #settingsPanel button{width:100%}
+body.focus-mode #quiz{margin-top:0;padding-top:14px}
+body.focus-mode .quiz-top{position:sticky;top:0;z-index:25;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(12px);padding:8px 4px 10px;border-bottom:1px solid var(--line)}
+body.focus-mode .question-card{scroll-margin-top:78px}
+body.focus-mode #backBtn{display:none!important}
+.dark.focus-mode .quiz-top{background:rgba(20,34,31,.94)}
+@media(max-width:720px){
+  body.focus-mode .shell{padding:8px}
+  body.focus-mode #quiz{border-radius:18px;padding:10px}
+  body.focus-mode .quiz-top{gap:8px}
+  body.focus-mode .settings-trigger{padding:11px 12px;font-size:14px}
+  body.focus-mode .counter{font-size:13px;gap:6px}
+  body.focus-mode .question-card{padding:4px;scroll-margin-top:72px}
+}
