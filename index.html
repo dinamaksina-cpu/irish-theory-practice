@@ -96,13 +96,37 @@
 
     </section>
 
+
+    <section id="examIntro" class="panel exam-intro hidden">
+      <p class="eyebrow">Офіційний режим</p>
+      <h2>Пробний іспит</h2>
+      <p>Цей режим імітує ірландський теоретичний іспит.</p>
+      <div class="exam-facts">
+        <div><b>40</b><span>питань</span></div>
+        <div><b>45:00</b><span>хвилин</span></div>
+        <div><b>35/40</b><span>прохідний бал</span></div>
+      </div>
+      <ul class="exam-rules">
+        <li>Правильні відповіді не показуються до завершення.</li>
+        <li>Можна повертатися до попередніх питань і змінювати відповіді.</li>
+        <li>Питання можна позначати прапорцем для повторного перегляду.</li>
+        <li>Після завершення часу іспит закінчиться автоматично.</li>
+      </ul>
+      <p class="exam-note"><b>Поки що:</b> 40 питань обираються випадково з усієї бази. Точний розподіл за 5 офіційними категоріями додамо після категоризації питань.</p>
+      <div class="exam-intro-actions">
+        <button id="examIntroHomeBtn" class="secondary">Назад</button>
+        <button id="examStartBtn">Почати іспит</button>
+      </div>
+    </section>
+
     <main id="quiz" class="quiz hidden">
       <div class="quiz-top">
         <button id="backBtn" class="ghost">← Меню</button>
         <div class="counter"><span id="timer" class="timer hidden">45:00</span><span id="counter">1 / 40</span></div>
-        <button id="favBtn" class="star">☆</button>
+        <div class="quiz-actions"><button id="flagBtn" class="star hidden" title="Позначити для перегляду">⚑</button><button id="favBtn" class="star">☆</button></div>
       </div>
       <div class="bar"><span id="bar"></span></div>
+      <div id="examNavigator" class="exam-navigator hidden"></div>
       <article class="question-card">
         <div class="meta"><span id="qid">№</span><span id="modeLabel"></span></div>
         <img id="qImg" class="qimg hidden" alt="Question image" />
@@ -115,6 +139,7 @@
         <button id="prevBtn" class="secondary">Назад</button>
         <button id="nextBtn">Далі</button>
       </div>
+      <button id="finishExamBtn" class="finish-exam hidden">Завершити іспит</button>
     </main>
 
     <section id="result" class="panel result hidden">

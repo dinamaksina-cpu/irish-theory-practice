@@ -13,6 +13,8 @@ let timeLeft = 45 * 60;
 let examStartedAt = null;
 let currentProfile = localStorage.getItem('itp_profile') || '';
 let currentTopic = 'all';
+let flagged = {};
+let lastExamMistakes = [];
 
 const labels = {
   ua: {empty:'Тут поки немає питань', correct:'Правильно ✅', wrong:'Неправильно ❌', next:'Далі', finish:'Завершити', back:'Назад', pass:'PASS ✅', fail:'FAIL ❌', result:'Результат', need:'Потрібно мінімум 35 правильних відповідей із 40.', timeout:'Час завершився.', resetConfirm:'Скинути прогрес тільки для цього профілю?', addProfile:'Введи ім’я нового профілю'},
@@ -113,25 +115,48 @@ function getOrder(q){
   if (!optionOrders[q.id]) optionOrders[q.id] = shuffle(q.options.map((_, i) => i));
   return optionOrders[q.id];
 }
+function showExamIntro(){
+  if (!requireProfile()) return;
+  $('home').classList.add('hidden');
+  $('quiz').classList.add('hidden');
+  $('result').classList.add('hidden');
+  $('stats').classList.add('hidden');
+  $('examIntro').classList.remove('hidden');
+}
+function beginExam(){
+  if (!requireProfile()) return;
+  mode = 'exam40';
+  answers = {};
+  optionOrders = {};
+  flagged = {};
+  pos = 0;
+  stopTimer();
+  session = sample(questions, 40);
+  if (!session.length) return alert(t('empty'));
+  $('examIntro').classList.add('hidden');
+  showQuiz();
+  startTimer();
+  render();
+}
 function start(selectedMode){
+  if (selectedMode === 'exam40') return showExamIntro();
   if (!requireProfile()) return;
   mode = selectedMode;
   answers = {};
   optionOrders = {};
+  flagged = {};
   pos = 0;
   stopTimer();
   const data = getData();
   const pool = filteredByTopic(currentTopic);
   if (mode === 'random10') session = sample(pool, 10);
   if (mode === 'random20') session = sample(pool, 20);
-  if (mode === 'exam40') session = sample(questions, 40);
   if (mode === 'all') session = [...pool].sort((a,b)=>a.id-b.id);
   if (mode === 'wrong') session = questions.filter(q => data.wrong[q.id]);
   if (mode === 'fav') session = questions.filter(q => data.fav[q.id]);
   if (mode === 'stats') return showStats();
   if (!session.length) return alert(t('empty'));
   showQuiz();
-  if (mode === 'exam40') startTimer();
   render();
 }
 function startQuestionByNumber(id){
@@ -143,8 +168,8 @@ function startQuestionByNumber(id){
 }
 function startTopic(){ currentTopic = $('topicSelect').value; start('all'); }
 
-function showQuiz(){ $('home').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('quiz').classList.remove('hidden'); }
-function showHome(){ stopTimer(); $('quiz').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('home').classList.remove('hidden'); updateResumeCard(); }
+function showQuiz(){ $('home').classList.add('hidden'); $('examIntro').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('quiz').classList.remove('hidden'); }
+function showHome(){ stopTimer(); $('quiz').classList.add('hidden'); $('examIntro').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.add('hidden'); $('home').classList.remove('hidden'); updateResumeCard(); }
 
 function saveLastQuestion(q){
   if (!currentProfile || !q || !['all','search'].includes(mode)) return;
@@ -177,7 +202,12 @@ function render(){
   $('modeLabel').textContent = modeLabel();
   $('question').innerHTML = displayHtml(q.question);
   $('favBtn').textContent = data.fav[q.id] ? '★' : '☆';
+  $('favBtn').classList.toggle('hidden', mode === 'exam40');
+  $('flagBtn').classList.toggle('hidden', mode !== 'exam40');
+  $('flagBtn').textContent = flagged[q.id] ? '🚩' : '⚑';
   $('timer').classList.toggle('hidden', mode !== 'exam40');
+  $('examNavigator').classList.toggle('hidden', mode !== 'exam40');
+  $('finishExamBtn').classList.toggle('hidden', mode !== 'exam40');
   setQuestionImage(q);
 
   const saved = answers[q.id];
@@ -205,7 +235,23 @@ function render(){
     $('feedback').innerHTML = ok ? t('correct') : `${t('wrong')}<br><b>Correct answer:</b> ${displayHtml(q.options[q.correctIndex])}`;
   }
   $('prevBtn').disabled = pos === 0;
-  $('nextBtn').textContent = pos === session.length - 1 ? t('finish') : t('next');
+  $('nextBtn').textContent = pos === session.length - 1 ? (mode === 'exam40' ? 'Перевірити та завершити' : t('finish')) : t('next');
+  if (mode === 'exam40') renderExamNavigator();
+}
+function renderExamNavigator(){
+  $('examNavigator').innerHTML = session.map((q,i) => {
+    const answered = answers[q.id] !== undefined;
+    const isFlagged = !!flagged[q.id];
+    const classes = ['exam-number', answered ? 'answered' : '', isFlagged ? 'flagged' : '', i === pos ? 'current' : ''].filter(Boolean).join(' ');
+    return `<button class="${classes}" data-exam-index="${i}" aria-label="Питання ${i+1}">${i+1}</button>`;
+  }).join('');
+  $('examNavigator').querySelectorAll('[data-exam-index]').forEach(btn => btn.onclick = () => { pos = Number(btn.dataset.examIndex); render(); window.scrollTo({top:0,behavior:'smooth'}); });
+}
+function toggleFlag(){
+  if (mode !== 'exam40') return;
+  const q = session[pos];
+  if (flagged[q.id]) delete flagged[q.id]; else flagged[q.id] = true;
+  render();
 }
 function modeLabel(){ return {random10:'10 Random', random20:'20 Random', exam40:'Official Exam 40 / 45 min', all: currentTopic === 'all' ? 'Усі питання' : `Тема: ${$('topicSelect').selectedOptions[0]?.textContent || ''}`, wrong:'Мої помилки', fav:'Обране', search:'Пошук'}[mode] || ''; }
 function choose(idx){ const q = session[pos]; answers[q.id] = idx; if (mode !== 'exam40') updateProgress(q, idx); render(); }
@@ -220,20 +266,54 @@ function applyProgress(data, q, idx){
   return data;
 }
 function updateProgress(q, idx){ const data = applyProgress(getData(), q, idx); setData(data); }
+function requestFinish(forced=false){
+  if (mode !== 'exam40' || forced) return finish(forced);
+  const unanswered = session.filter(q => answers[q.id] === undefined).length;
+  const msg = unanswered
+    ? `У вас залишилося ${unanswered} питань без відповіді. Завершити іспит?`
+    : 'Завершити іспит і показати результат?';
+  if (confirm(msg)) finish(false);
+}
 function finish(forced=false){
-  stopTimer(); let correct = 0; const data = getData(); const mistakes = [];
-  session.forEach(q => { const ans = answers[q.id]; const ok = ans === q.correctIndex; if (ok) correct++; if (ans !== undefined) applyProgress(data, q, ans); if (!ok) { data.wrong[q.id] = true; mistakes.push(q); } else delete data.wrong[q.id]; });
-  const total = session.length; const incorrect = total - correct; const isExam = mode === 'exam40'; const pass = !isExam || correct >= 35; const used = examStartedAt ? Math.round((Date.now() - examStartedAt) / 1000) : null;
-  if (isExam) data.tests.push({date:new Date().toISOString(), correct, total, incorrect, pass, seconds: used});
+  stopTimer();
+  let correct = 0;
+  const data = getData();
+  const mistakes = [];
+  session.forEach(q => {
+    const ans = answers[q.id];
+    const ok = ans !== undefined && ans === q.correctIndex;
+    if (ok) correct++;
+    if (mode === 'exam40' && ans !== undefined) applyProgress(data, q, ans);
+    if (!ok) {
+      data.wrong[q.id] = true;
+      mistakes.push({q, ans});
+    } else delete data.wrong[q.id];
+  });
+  const total = session.length;
+  const incorrect = total - correct;
+  const unanswered = session.filter(q => answers[q.id] === undefined).length;
+  const isExam = mode === 'exam40';
+  const pass = !isExam || correct >= 35;
+  const used = examStartedAt ? Math.min(45*60, Math.round((Date.now() - examStartedAt) / 1000)) : null;
+  if (isExam) data.tests.push({date:new Date().toISOString(), correct, total, incorrect, unanswered, pass, seconds:used});
   setData(data);
-  $('quiz').classList.add('hidden'); $('home').classList.add('hidden'); $('result').classList.remove('hidden');
+  lastExamMistakes = mistakes;
+  $('quiz').classList.add('hidden');
+  $('home').classList.add('hidden');
+  $('examIntro').classList.add('hidden');
+  $('result').classList.remove('hidden');
   $('resultTitle').textContent = isExam ? (pass ? t('pass') : t('fail')) : t('result');
-  $('resultText').innerHTML = `${forced ? `<b>${t('timeout')}</b><br>` : ''}Правильно: <b>${correct}/${total}</b><br>Помилок: <b>${incorrect}</b>${isExam ? `<br>${t('need')}` : ''}${used ? `<br>Time: ${formatTime(used)}` : ''}`;
-  $('resultList').innerHTML = mistakes.slice(0, 50).map(q => `<div class="mini"><b>№${q.id}</b> ${escapeHtml(plainText(q.question))}</div>`).join('') || '<div class="mini">Без помилок 🎉</div>';
+  const pct = total ? Math.round(correct/total*100) : 0;
+  $('resultText').innerHTML = `${forced ? `<b>${t('timeout')}</b><br>` : ''}Правильно: <b>${correct}/${total}</b><br>Помилок: <b>${incorrect}</b><br>Без відповіді: <b>${unanswered}</b><br>Результат: <b>${pct}%</b>${isExam ? `<br>${t('need')}` : ''}${used !== null ? `<br>Використаний час: ${formatTime(used)}` : ''}`;
+  $('resultList').innerHTML = mistakes.length ? mistakes.map(({q,ans}) => {
+    const your = ans === undefined ? 'Без відповіді' : escapeHtml(plainText(q.options[ans]));
+    const right = escapeHtml(plainText(q.options[q.correctIndex]));
+    return `<details class="mistake-detail"><summary><b>№${q.id}</b> ${escapeHtml(plainText(q.question))}</summary><p><b>Ваша відповідь:</b> ${your}</p><p><b>Правильна відповідь:</b> ${right}</p></details>`;
+  }).join('') : '<div class="mini">Без помилок 🎉</div>';
 }
 function startTimer(){ timeLeft = 45 * 60; examStartedAt = Date.now(); tick(); timerId = setInterval(tick, 1000); }
 function stopTimer(){ if (timerId) clearInterval(timerId); timerId = null; $('timer').classList.add('hidden'); }
-function tick(){ $('timer').textContent = formatTime(timeLeft); if (timeLeft <= 0) finish(true); timeLeft--; }
+function tick(){ $('timer').textContent = formatTime(Math.max(0,timeLeft)); if (timeLeft <= 0) { requestFinish(true); return; } timeLeft--; }
 function formatTime(sec){ const m = Math.floor(sec/60); const s = sec%60; return `${m}:${String(s).padStart(2,'0')}`; }
 function showStats(){
   if (!requireProfile()) return;
@@ -247,7 +327,7 @@ function showStats(){
   const accuracy = completed ? ((correctUnique / completed) * 100).toFixed(1) : '0.0';
   const best = tests.length ? Math.max(...tests.map(t => t.correct)) : 0;
   const avg = tests.length ? (tests.reduce((a,t)=>a+t.correct,0)/tests.length).toFixed(1) : 0;
-  $('home').classList.add('hidden'); $('quiz').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.remove('hidden');
+  $('home').classList.add('hidden'); $('examIntro').classList.add('hidden'); $('quiz').classList.add('hidden'); $('result').classList.add('hidden'); $('stats').classList.remove('hidden');
   $('statsText').innerHTML = `
     <b>Профіль:</b> ${escapeHtml(currentProfile)}
     <div class="progress-summary">
@@ -272,9 +352,13 @@ function checkAccess(){
 
 $('accessBtn').onclick = () => { if ($('accessCode').value.trim() === ACCESS_CODE) { localStorage.setItem('itp_access_ok','yes'); checkAccess(); } else $('accessError').classList.remove('hidden'); };
 $('accessCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('accessBtn').click(); });
-$('nextBtn').onclick = () => { if (pos < session.length - 1) { pos++; render(); } else finish(); };
+$('nextBtn').onclick = () => { if (pos < session.length - 1) { pos++; render(); } else requestFinish(); };
 $('prevBtn').onclick = () => { if (pos > 0) { pos--; render(); } };
-$('backBtn').onclick = showHome; $('homeBtn').onclick = showHome; $('statsHomeBtn').onclick = showHome;
+$('backBtn').onclick = () => { if (mode === 'exam40' && !confirm('Вийти з іспиту? Поточна спроба не буде збережена.')) return; showHome(); }; $('homeBtn').onclick = showHome; $('statsHomeBtn').onclick = showHome;
+$('examStartBtn').onclick = beginExam;
+$('examIntroHomeBtn').onclick = showHome;
+$('flagBtn').onclick = toggleFlag;
+$('finishExamBtn').onclick = () => requestFinish(false);
 $('favBtn').onclick = () => { const q = session[pos]; const data = getData(); if (data.fav[q.id]) delete data.fav[q.id]; else data.fav[q.id] = true; setData(data); render(); };
 $('lang').value = lang; $('lang').onchange = e => { lang = e.target.value; localStorage.setItem('itp_lang', lang); if (!$('quiz').classList.contains('hidden')) render(); };
 $('themeBtn').onclick = () => { document.body.classList.toggle('dark'); localStorage.setItem('itp_theme', document.body.classList.contains('dark') ? 'dark' : 'light'); };
