@@ -2,167 +2,83 @@
 <html lang="uk">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#14382f" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f8f3" />
   <title>Irish Driving Theory Test</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <section id="accessScreen" class="access hidden">
-    <div class="access-card">
-      <p class="eyebrow">Private access</p>
-      <h1>Irish Driving Theory Test</h1>
-      <p class="sub">Enter access code to continue</p>
-      <input id="accessCode" placeholder="Access code" autocomplete="off" />
-      <button id="accessBtn">Enter</button>
-      <p id="accessError" class="error hidden">Wrong access code</p>
-    </div>
-  </section>
-
-  <div id="appShell" class="shell hidden">
-    <header class="hero">
-      <div>
-        <p class="eyebrow">Practice Test</p>
-        <h1>Irish Driving Theory Test</h1>
-      </div>
-      <div class="pill"><b id="totalCount">801</b><span>questions</span></div>
-    </header>
-
-    <section id="settingsPanel" class="panel profile-panel">
-      <div class="settings-panel-head">
-        <b>⚙️ Налаштування</b>
-        <button id="settingsCloseBtn" class="ghost settings-close" type="button">✕</button>
-      </div>
-      <div>
-        <label>Профіль</label>
-        <select id="profileSelect"></select>
-      </div>
-      <button id="addProfileBtn" class="ghost">+ Створити профіль</button>
-      <div>
-        <label>Мова</label>
-        <select id="lang">
-          <option value="ua">Українська</option>
-          <option value="en">English</option>
-          <option value="ru">Русский</option>
-          <option value="en_ua">English + Українська</option>
-          <option value="en_ru">English + Русский</option>
-        </select>
-      </div>
-      <button id="themeBtn" class="ghost">🌙 Тема</button>
-      <button id="resetBtn" class="ghost danger">Скинути прогрес</button>
-      <button id="settingsHomeBtn" class="ghost settings-home" type="button">🏠 На головну</button>
-    </section>
-    <div id="settingsBackdrop" class="settings-backdrop hidden"></div>
-
-    <section id="home" class="home-block">
-      <section id="resumeCard" class="panel resume-card hidden">
+  <div id="app" class="app-shell">
+    <main id="homeView" class="home-view">
+      <section class="hero card">
         <div>
-          <span class="resume-label">Продовжити навчання</span>
-          <b id="resumeText">Останнє питання: №1</b>
+          <div class="eyebrow">PRACTICE TEST</div>
+          <h1>Irish Driving<br />Theory Test</h1>
         </div>
-        <button id="resumeBtn">Продовжити →</button>
+        <div class="question-count"><strong id="totalCount">801</strong><span data-i18n="questions">питань</span></div>
       </section>
 
-      <section class="grid">
-        <button class="mode-card" data-mode="random10"><span>🔟</span><b>10 випадкових питань</b><small>Швидка практика</small></button>
-        <button class="mode-card" data-mode="random20"><span>🎲</span><b>20 випадкових питань</b><small>Більше практики</small></button>
-        <button class="mode-card exam" data-mode="exam40"><span>📝</span><b>Офіційний іспит 40</b><small>45 хв • прохідний 35/40</small></button>
-        <button class="mode-card" data-mode="all"><span>📚</span><b>Усі питання</b><small>Вчити всі питання</small></button>
-        <button class="mode-card" data-mode="wrong"><span>❌</span><b>Мої помилки</b><small>Ваші неправильні відповіді</small></button>
-        <button class="mode-card" data-mode="fav"><span>⭐</span><b>Обране</b><small>Збережені питання</small></button>
-        <button class="mode-card" data-mode="stats"><span>📊</span><b>Статистика</b><small>Ваш прогрес</small></button>
+      <section class="card settings-card">
+        <label><span data-i18n="language">Мова</span>
+          <select id="languageSelect">
+            <option value="ua">Українська</option>
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="en-ua">English + Українська</option>
+            <option value="en-ru">English + Русский</option>
+          </select>
+        </label>
+        <button id="themeBtn" class="secondary-btn" type="button">🌙 <span data-i18n="theme">Тема</span></button>
       </section>
 
-      <div class="panel tools-panel">
-        <div>
-          <label>Пошук за номером питання</label>
-          <div class="search-row">
-            <input id="searchNumber" type="number" min="1" max="801" placeholder="наприклад 651" />
-            <button id="searchBtn">Відкрити</button>
-          </div>
-        </div>
-        <div>
-          <label>Практика за темою</label>
-          <div class="search-row">
-            <select id="topicSelect">
-              <option value="all">Усі теми</option>
-              <option value="signs">Дорожні знаки</option>
-              <option value="rules">Правила дорожнього руху</option>
-              <option value="speed">Обмеження швидкості</option>
-              <option value="parking">Паркування</option>
-              <option value="motorway">Автомагістралі</option>
-              <option value="vehicle">Безпека автомобіля</option>
-              <option value="law">Закон, документи та штрафи</option>
-              <option value="hazards">Небезпеки та аварійні ситуації</option>
-            </select>
-            <button id="topicBtn">Почати</button>
-          </div>
-        </div>
-      </div>
+      <section class="mode-grid">
+        <button class="mode-card" data-mode="random10"><span>🔟</span><b data-i18n="random10">10 випадкових</b><small data-i18n="quickPractice">Швидке тренування</small></button>
+        <button class="mode-card" data-mode="random20"><span>🎲</span><b data-i18n="random20">20 випадкових</b><small data-i18n="morePractice">Більше практики</small></button>
+        <button class="mode-card" data-mode="exam"><span>📝</span><b data-i18n="officialExam">40 — пробний іспит</b><small>45 min · 35/40</small></button>
+        <button class="mode-card" data-mode="all"><span>📚</span><b data-i18n="allQuestions">Усі питання</b><small id="allProgress">0 / 801</small></button>
+        <button class="mode-card" data-mode="mistakes"><span>❌</span><b data-i18n="mistakes">Лише помилки</b><small id="mistakesCount">0</small></button>
+        <button class="mode-card" data-mode="favorites"><span>⭐</span><b data-i18n="favorites">Лише закладки</b><small id="favoritesCount">0</small></button>
+      </section>
 
-    </section>
-
-
-    <section id="examIntro" class="panel exam-intro hidden">
-      <p class="eyebrow">Офіційний режим</p>
-      <h2>Пробний іспит</h2>
-      <p>Цей режим імітує ірландський теоретичний іспит.</p>
-      <div class="exam-facts">
-        <div><b>40</b><span>питань</span></div>
-        <div><b>45:00</b><span>хвилин</span></div>
-        <div><b>35/40</b><span>прохідний бал</span></div>
-      </div>
-      <ul class="exam-rules">
-        <li>Правильні відповіді не показуються до завершення.</li>
-        <li>Після переходу до наступного питання повернутися назад не можна.</li>
-        <li>Кнопка «Далі» стає активною лише після вибору відповіді.</li>
-        <li>Після завершення часу іспит закінчиться автоматично.</li>
-      </ul>
-      <div class="exam-intro-actions">
-        <button id="examIntroHomeBtn" class="secondary">Назад</button>
-        <button id="examStartBtn">Почати іспит</button>
-      </div>
-    </section>
-
-    <main id="quiz" class="quiz hidden">
-      <div class="quiz-top">
-        <button id="settingsBtn" class="ghost settings-trigger">⚙️ Налаштування</button>
-        <button id="backBtn" class="ghost hidden">← Меню</button>
-        <div class="counter"><span id="timer" class="timer hidden">45:00</span><span id="counter">1 / 40</span></div>
-        <div class="quiz-actions"><button id="flagBtn" class="star hidden" title="Позначити для перегляду">⚑</button><button id="favBtn" class="star">☆</button></div>
-      </div>
-      <div class="bar"><span id="bar"></span></div>
-      <div id="examNavigator" class="exam-navigator hidden"></div>
-      <article class="question-card">
-        <div class="meta"><span id="qid">№</span><span id="modeLabel"></span></div>
-        <img id="qImg" class="qimg hidden" alt="Question image" />
-        <div id="noImage" class="no-image hidden"></div>
-        <h2 id="question"></h2>
-        <div id="answers" class="answers"></div>
-        <div id="feedback" class="feedback hidden"></div>
-      </article>
-      <div class="nav">
-        <button id="prevBtn" class="secondary">Назад</button>
-        <button id="nextBtn">Далі</button>
-      </div>
-      <button id="finishExamBtn" class="finish-exam hidden">Завершити іспит</button>
-      <button id="quizHomeBtn" class="secondary quiz-home" type="button">← На головну</button>
+      <section class="card tools-card">
+        <label><span data-i18n="searchNumber">Пошук за номером</span>
+          <div class="inline-control"><input id="searchInput" inputmode="numeric" type="number" min="1" max="801" placeholder="701" /><button id="searchBtn" type="button" data-i18n="open">Відкрити</button></div>
+        </label>
+      </section>
     </main>
 
-    <section id="result" class="panel result hidden">
-      <h2 id="resultTitle">Результат</h2>
-      <p id="resultText"></p>
-      <div id="resultList" class="result-list"></div>
-      <button id="homeBtn">Назад to menu</button>
-    </section>
+    <main id="quizView" class="quiz-view hidden" aria-live="polite">
+      <header class="quiz-header">
+        <button id="homeBtn" class="icon-btn" type="button" aria-label="Back to menu">←</button>
+        <div class="progress-box"><div id="progressText">1 / 801</div><div class="progress-track"><div id="progressBar"></div></div></div>
+        <button id="settingsBtn" class="icon-btn" type="button" aria-label="Settings">☰</button>
+      </header>
 
-    <section id="stats" class="panel result hidden">
-      <h2>Статистика</h2>
-      <p id="statsText"></p>
-      <div id="statsList" class="result-list"></div>
-      <button id="statsHomeBtn">Назад to menu</button>
-    </section>
+      <section id="questionCard" class="question-card card">
+        <div id="questionText" class="question-text"></div>
+        <div id="imageWrap" class="image-wrap hidden"><img id="questionImage" alt="Question illustration" /><button id="zoomBtn" class="zoom-btn" type="button" aria-label="Zoom image">⌕</button></div>
+        <div id="answers" class="answers"></div>
+      </section>
+
+      <footer class="quiz-footer">
+        <button id="prevBtn" class="footer-action" type="button"><span>←</span><small data-i18n="back">Назад</small></button>
+        <button id="favoriteBtn" class="footer-action" type="button"><span>♡</span><small data-i18n="bookmark">Закладка</small></button>
+        <button id="nextBtn" class="footer-action primary" type="button"><span>→</span><small data-i18n="next">Далі</small></button>
+      </footer>
+    </main>
   </div>
+
+  <div id="drawerBackdrop" class="drawer-backdrop hidden"></div>
+  <aside id="settingsDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer-head"><h2 data-i18n="settings">Налаштування</h2><button id="closeDrawer" class="icon-btn" type="button">×</button></div>
+    <label><span data-i18n="language">Мова</span><select id="drawerLanguage"></select></label>
+    <button id="drawerTheme" class="drawer-button" type="button">🌙 <span data-i18n="theme">Тема</span></button>
+    <button id="resetProgress" class="drawer-button danger" type="button" data-i18n="resetProgress">Скинути прогрес</button>
+    <button id="drawerHome" class="drawer-button" type="button" data-i18n="home">На головну</button>
+  </aside>
+
+  <div id="imageModal" class="image-modal hidden"><button id="closeImage" type="button">×</button><img id="modalImage" alt="Expanded question illustration" /></div>
+
   <script src="app.js"></script>
 </body>
 </html>
