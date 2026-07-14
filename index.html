@@ -18,6 +18,19 @@
         <div class="question-count"><strong id="totalCount">801</strong><span data-i18n="questions">питань</span></div>
       </section>
 
+      <section class="card profile-card">
+        <div class="section-title-row"><h2 data-i18n="profile">Профіль</h2><button id="createProfileBtn" class="text-btn" type="button" data-i18n="createProfile">+ Створити</button></div>
+        <div class="profile-row">
+          <div class="profile-avatar">👤</div>
+          <div class="profile-main"><select id="profileSelect" aria-label="Profile"></select><small data-i18n="progressSaved">Прогрес зберігається окремо</small></div>
+        </div>
+      </section>
+
+      <section id="resumeCard" class="card resume-card hidden">
+        <div><b data-i18n="continueLast">Продовжити з останнього питання</b><small id="resumeText">Питання 1 з 801</small><div class="mini-track"><div id="resumeBar"></div></div></div>
+        <button id="resumeBtn" type="button" data-i18n="open">Відкрити</button>
+      </section>
+
       <section class="card settings-card">
         <label><span data-i18n="language">Мова</span>
           <select id="languageSelect">
@@ -32,15 +45,33 @@
       </section>
 
       <section class="mode-grid">
-        <button class="mode-card" data-mode="random10"><span>🔟</span><b data-i18n="random10">10 випадкових</b><small data-i18n="quickPractice">Швидке тренування</small></button>
         <button class="mode-card" data-mode="random20"><span>🎲</span><b data-i18n="random20">20 випадкових</b><small data-i18n="morePractice">Більше практики</small></button>
         <button class="mode-card" data-mode="exam"><span>📝</span><b data-i18n="officialExam">40 — пробний іспит</b><small>45 min · 35/40</small></button>
         <button class="mode-card" data-mode="all"><span>📚</span><b data-i18n="allQuestions">Усі питання</b><small id="allProgress">0 / 801</small></button>
         <button class="mode-card" data-mode="mistakes"><span>❌</span><b data-i18n="mistakes">Лише помилки</b><small id="mistakesCount">0</small></button>
         <button class="mode-card" data-mode="favorites"><span>⭐</span><b data-i18n="favorites">Лише закладки</b><small id="favoritesCount">0</small></button>
+        <button class="mode-card" id="searchModeBtn" type="button"><span>🔎</span><b data-i18n="searchNumber">Пошук за номером</b><small data-i18n="openQuestion">Відкрити конкретне питання</small></button>
       </section>
 
-      <section class="card tools-card">
+      <section class="card stats-card">
+        <div class="section-title-row"><h2 data-i18n="statistics">Статистика</h2></div>
+        <div class="stats-grid">
+          <div><strong id="statAnswered">0</strong><span data-i18n="completed">Пройдено</span></div>
+          <div><strong id="statCorrect">0</strong><span data-i18n="correctAnswers">Правильних</span></div>
+          <div><strong id="statMistakes">0</strong><span data-i18n="errors">Помилок</span></div>
+          <div><strong id="statSuccess">0%</strong><span data-i18n="successRate">Успішність</span></div>
+        </div>
+        <div class="exam-stats">
+          <div class="section-title-row compact"><h3 data-i18n="exams">Іспити</h3></div>
+          <div class="exam-grid">
+            <div><strong id="examCount">0</strong><span data-i18n="examsTaken">Складено іспитів</span></div>
+            <div><strong id="examAverage">—</strong><span data-i18n="averageResult">Середній результат</span></div>
+            <div><strong id="examBest">—</strong><span data-i18n="bestResult">Найкращий результат</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="searchPanel" class="card tools-card hidden">
         <label><span data-i18n="searchNumber">Пошук за номером</span>
           <div class="inline-control"><input id="searchInput" inputmode="numeric" type="number" min="1" max="801" placeholder="701" /><button id="searchBtn" type="button" data-i18n="open">Відкрити</button></div>
         </label>
@@ -53,13 +84,11 @@
         <div class="progress-box"><div id="progressText">1 / 801</div><div class="progress-track"><div id="progressBar"></div></div></div>
         <button id="settingsBtn" class="icon-btn" type="button" aria-label="Settings">☰</button>
       </header>
-
       <section id="questionCard" class="question-card card">
         <div id="questionText" class="question-text"></div>
         <div id="imageWrap" class="image-wrap hidden"><img id="questionImage" alt="Question illustration" /><button id="zoomBtn" class="zoom-btn" type="button" aria-label="Zoom image">⌕</button></div>
         <div id="answers" class="answers"></div>
       </section>
-
       <footer class="quiz-footer">
         <button id="prevBtn" class="footer-action" type="button"><span>←</span><small data-i18n="back">Назад</small></button>
         <button id="favoriteBtn" class="footer-action" type="button"><span>♡</span><small data-i18n="bookmark">Закладка</small></button>
@@ -71,6 +100,7 @@
   <div id="drawerBackdrop" class="drawer-backdrop hidden"></div>
   <aside id="settingsDrawer" class="drawer" aria-hidden="true">
     <div class="drawer-head"><h2 data-i18n="settings">Налаштування</h2><button id="closeDrawer" class="icon-btn" type="button">×</button></div>
+    <label><span data-i18n="profile">Профіль</span><select id="drawerProfile"></select></label>
     <label><span data-i18n="language">Мова</span><select id="drawerLanguage"></select></label>
     <button id="drawerTheme" class="drawer-button" type="button">🌙 <span data-i18n="theme">Тема</span></button>
     <button id="resetProgress" class="drawer-button danger" type="button" data-i18n="resetProgress">Скинути прогрес</button>
@@ -78,7 +108,6 @@
   </aside>
 
   <div id="imageModal" class="image-modal hidden"><button id="closeImage" type="button">×</button><img id="modalImage" alt="Expanded question illustration" /></div>
-
   <script src="app.js"></script>
 </body>
 </html>

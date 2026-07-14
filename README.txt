@@ -1,10 +1,18 @@
-Irish Driving Theory Test — redesign 3.0
+Irish Driving Theory Test — version 3.1
 
-Upload/replace these files in the root of your GitHub Pages repository:
+Replace these files on GitHub:
 - index.html
 - style.css
 - app.js
 - questions.json
 
-Keep your existing images folder unchanged. The app expects paths such as images/701.png.
-After committing, wait 1–2 minutes and refresh the site with cache disabled.
+Keep your existing images folder.
+
+Changes:
+- removed the 10-question mode;
+- restored profiles with separate saved progress;
+- restored Continue from last question;
+- restored statistics;
+- added Exam statistics under the heading “Іспити”;
+- reduced question and answer font sizes for mobile screens;
+- included the latest questions.json supplied by the user.
