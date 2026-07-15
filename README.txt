@@ -1,8 +1,10 @@
-Irish Driving Theory Design 5.1.1
+Version 5.2 — real result-screen redesign
 
-Change:
-- The Correct / Incorrect message is now displayed below all answer options.
-- It no longer floats over or hides answers.
-- Bottom Back and Next controls remain fixed.
+Changes:
+- New exam result screen matching the approved mockup
+- Both languages are shown in dual-language modes
+- Questions, selected answers and correct answers are bilingual
+- New result cards, numbered error list, tip block and retry button
+- Existing profiles, progress, exam timer, answer shuffle and question database retained
 
-Upload index.html, style.css, app.js and questions.json. Keep the images folder unchanged.
+Upload index.html, style.css, app.js and questions.json. Keep your images folder unchanged.

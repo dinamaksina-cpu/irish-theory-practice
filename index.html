@@ -103,7 +103,30 @@
   <aside id="settingsDrawer" class="drawer" aria-hidden="true"><div class="drawer-head"><h2 data-i18n="settings">Налаштування</h2><button id="closeDrawer" class="icon-btn" type="button">×</button></div><label><span data-i18n="profile">Профіль</span><select id="drawerProfile"></select></label><label><span data-i18n="language">Мова</span><select id="drawerLanguage"></select></label><button id="drawerTheme" class="drawer-button" type="button"><svg><use href="#i-moon"/></svg><span data-i18n="theme">Тема</span></button><button id="resetProgress" class="drawer-button danger" type="button"><svg><use href="#i-reset"/></svg><span data-i18n="resetProgress">Скинути прогрес</span></button><button id="drawerHome" class="drawer-button" type="button" data-i18n="home">На головну</button></aside>
   <div id="imageModal" class="image-modal hidden"><button id="closeImage" type="button">×</button><img id="modalImage" alt="Expanded question illustration" /></div>
   <div id="startChoiceModal" class="choice-modal hidden"><div class="choice-card card"><h2 id="startChoiceTitle">Усі питання</h2><p id="startChoiceText">Звідки почати?</p><button id="startFromFirst" type="button" class="choice-primary">З першого питання</button><button id="startFromLast" type="button" class="choice-secondary">Продовжити з останнього</button><button id="cancelStartChoice" type="button" class="choice-cancel">Скасувати</button></div></div>
-  <div id="examResultModal" class="result-modal hidden"><div class="result-card card"><div class="result-head"><div><div id="resultStatus" class="result-status">PASS</div><h2 id="resultTitle">Результат іспиту</h2></div><button id="closeResult" type="button" class="icon-btn">×</button></div><div class="result-summary"><div><strong id="resultScore">0/40</strong><span>Результат</span></div><div><strong id="resultTime">00:00</strong><span>Час</span></div><div><strong id="resultMistakeCount">0</strong><span>Помилок</span></div></div><h3 id="mistakesTitle">Питання з помилками</h3><div id="examMistakesList" class="exam-mistakes-list"></div><button id="resultHomeBtn" class="choice-primary" type="button">На головну</button></div></div>
+  <div id="examResultModal" class="result-modal hidden">
+    <div class="result-card card">
+      <div class="result-topbar">
+        <button id="resultBackBtn" type="button" class="result-back" aria-label="Back">←</button>
+        <div id="resultTopTitle" class="result-top-title">Результат іспиту</div>
+        <button id="closeResult" type="button" class="icon-btn result-close">×</button>
+      </div>
+      <div class="result-head">
+        <div>
+          <div id="resultStatus" class="result-status">PASS</div>
+          <h2 id="resultTitle">Результат іспиту</h2>
+        </div>
+      </div>
+      <div class="result-summary">
+        <div class="result-stat score"><span class="result-stat-icon">✓</span><strong id="resultScore">0/40</strong><span id="resultScoreLabel">Правильні відповіді</span><small id="resultScorePercent">0%</small></div>
+        <div class="result-stat time"><span class="result-stat-icon">◷</span><strong id="resultTime">00:00</strong><span id="resultTimeLabel">Час проходження</span></div>
+        <div class="result-stat mistakes"><span class="result-stat-icon">×</span><strong id="resultMistakeCount">0</strong><span id="resultMistakeLabel">Помилок</span><small id="resultMistakePercent">0%</small></div>
+      </div>
+      <h3 id="mistakesTitle">Питання з помилками</h3>
+      <div id="examMistakesList" class="exam-mistakes-list"></div>
+      <div id="resultTip" class="result-tip"><span>💡</span><div><b id="resultTipTitle">Порада</b><p id="resultTipText">Перегляньте неправильні відповіді перед наступною спробою.</p></div></div>
+      <div class="result-actions"><button id="resultHomeBtn" class="choice-secondary" type="button">Усі питання</button><button id="resultRetryBtn" class="choice-primary" type="button">Спробувати знову</button></div>
+    </div>
+  </div>
   <script src="app.js"></script>
 </body>
 </html>
