@@ -1,14 +1,18 @@
-Irish Driving Theory Test 4.1.1
+Irish Driving Theory Test — Design 5.0
 
-Fix:
-- Answer options are shuffled independently for every question and every new session.
-- correctIndex is recalculated after shuffling, so the correct answer remains correct.
-- Works in All Questions, 20 Random, Exam, Mistakes, Bookmarks, Search, and Resume.
-
-Upload/replace:
+Upload/replace these files in your project:
 - index.html
 - style.css
 - app.js
 - questions.json
 
-Keep the images folder unchanged.
+Keep your existing images folder unchanged.
+
+Included:
+- completely redesigned home dashboard
+- improved light and dark themes
+- compact mobile question layout
+- fixed bottom Back/Next controls
+- answer shuffling with correctIndex recalculation
+- profiles, progress, bookmarks and statistics
+- 45-minute exam timer and exam error review
