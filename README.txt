@@ -1,18 +1,14 @@
-Irish Driving Theory Test — version 3.1
+Irish Driving Theory Test 4.1.1
 
-Replace these files on GitHub:
+Fix:
+- Answer options are shuffled independently for every question and every new session.
+- correctIndex is recalculated after shuffling, so the correct answer remains correct.
+- Works in All Questions, 20 Random, Exam, Mistakes, Bookmarks, Search, and Resume.
+
+Upload/replace:
 - index.html
 - style.css
 - app.js
 - questions.json
 
-Keep your existing images folder.
-
-Changes:
-- removed the 10-question mode;
-- restored profiles with separate saved progress;
-- restored Continue from last question;
-- restored statistics;
-- added Exam statistics under the heading “Іспити”;
-- reduced question and answer font sizes for mobile screens;
-- included the latest questions.json supplied by the user.
+Keep the images folder unchanged.
