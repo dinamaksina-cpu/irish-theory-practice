@@ -1,18 +1,17 @@
-Irish Driving Theory Test — Design 5.0
+Irish Driving Theory Design 5.1 Compact
 
-Upload/replace these files in your project:
+What changed:
+- Smaller question images on phones.
+- More compact question and answer typography.
+- Reduced spacing between answer cards.
+- Correct/incorrect feedback is always visible above the bottom navigation.
+- Bottom Back/Next buttons remain fixed.
+- Existing profiles, statistics, exam timer, shuffled answers, bookmarks and questions are preserved.
+
+Upload/replace on the site:
 - index.html
 - style.css
 - app.js
 - questions.json
 
-Keep your existing images folder unchanged.
-
-Included:
-- completely redesigned home dashboard
-- improved light and dark themes
-- compact mobile question layout
-- fixed bottom Back/Next controls
-- answer shuffling with correctIndex recalculation
-- profiles, progress, bookmarks and statistics
-- 45-minute exam timer and exam error review
+Keep the existing images folder unchanged.
