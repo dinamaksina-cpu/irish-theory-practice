@@ -33,17 +33,12 @@
   .footer-action { height: 50px; border-radius: 15px; font-size: 20px; }
   .footer-action small { font-size: 14px; }
   .answer-feedback:not(.hidden) {
-    position: fixed;
-    left: 12px;
-    right: 12px;
-    bottom: calc(66px + env(safe-area-inset-bottom));
-    z-index: 36;
-    margin: 0;
-    padding: 10px 14px;
+    position: static;
+    margin: 10px 0 0;
+    padding: 11px 14px;
     border-radius: 14px;
     font-size: 15px;
-    box-shadow: 0 12px 28px rgba(0,0,0,.16);
-    backdrop-filter: blur(14px);
+    box-shadow: none;
   }
 }
 
@@ -66,4 +61,12 @@
   .image-wrap img { max-height: 150px; }
   .answer { padding-top: 7px; padding-bottom: 7px; }
   .answer-primary { font-size: 13px; }
+}
+
+/* v5.1.1: feedback always follows the complete answer list */
+.answer-feedback { clear: both; width: 100%; }
+.question-card { padding-bottom: 20px; }
+@media (max-width: 760px) {
+  .quiz-view { padding-bottom: 82px; }
+  .answer-feedback:not(.hidden) { margin-top: 9px; }
 }
