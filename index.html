@@ -2,130 +2,75 @@
 <html lang="uk">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#f4f8f5" />
-  <title>Irish Driving Theory Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#14382f" />
+  <title>Irish Theory Practice 2.0</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <svg aria-hidden="true" class="svg-sprite">
-    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5A2.5 2.5 0 0 1 20 21.5v-16Z"/></symbol>
-    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.8h6V4M8 9h8M8 13h8M8 17h5"/></symbol>
-    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5M12 17.5h.01"/></symbol>
-    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></symbol>
-    <symbol id="i-dice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></symbol>
-    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
-    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1A7 7 0 0 0 15 6l-.3-2.6h-4L10.5 6A7 7 0 0 0 9 7.1l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1A7 7 0 0 0 10.5 18l.3 2.6h4L15 18a7 7 0 0 0 1.5-1.1l2.4 1 2-3.4-2-1.5c.1-.3.1-.7.1-1Z"/></symbol>
-    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></symbol>
-    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 4v6h6M5.5 8A8 8 0 1 1 4 14"/></symbol>
-    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-6-4-6 4v-17Z"/></symbol>
-  </svg>
+  <div class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Irish Driving Theory Test</p>
+        <h1>Practice 2.0</h1>
+        <p class="sub">801 питання • 3 мови • картинки • прогрес</p>
+      </div>
+      <div class="pill"><b id="totalCount">801</b><span>questions</span></div>
+    </header>
 
-  <div id="app" class="app-shell">
-    <main id="homeView" class="home-view">
-      <header class="home-topbar">
-        <div class="welcome">
-          <div class="avatar"><svg><use href="#i-user"/></svg></div>
-          <div><small>Irish Driving Theory</small><strong id="welcomeName">Вітаємо!</strong></div>
-        </div>
-        <button id="themeBtn" class="round-btn" type="button" aria-label="Theme"><svg><use href="#i-moon"/></svg></button>
-      </header>
+    <section id="home" class="grid">
+      <button class="mode-card" data-mode="learn"><span>📚</span><b>Learning</b><small>Всі питання по порядку</small></button>
+      <button class="mode-card" data-mode="random"><span>🎲</span><b>Random</b><small>Випадкові питання</small></button>
+      <button class="mode-card" data-mode="exam"><span>📝</span><b>Mock Test</b><small>40 питань як іспит</small></button>
+      <button class="mode-card" data-mode="wrong"><span>❌</span><b>Wrong</b><small>Повторити помилки</small></button>
+      <button class="mode-card" data-mode="fav"><span>⭐</span><b>Favorites</b><small>Обрані питання</small></button>
+      <button class="mode-card" data-mode="stats"><span>📊</span><b>Statistics</b><small>Твій прогрес</small></button>
+    </section>
 
-      <section class="hero card">
-        <div class="hero-copy">
-          <div class="eyebrow">LEARN • PRACTICE • PASS</div>
-          <h1>Irish Driving<br />Theory Test</h1>
-          <p>Підготовка до теоретичного іспиту в Ірландії</p>
-        </div>
-        <div class="question-count"><strong id="totalCount">801</strong><span data-i18n="questions">питань</span></div>
-        <span class="hero-orb orb-one"></span><span class="hero-orb orb-two"></span>
-      </section>
+    <section class="panel controls">
+      <label>Мова
+        <select id="lang">
+          <option value="ua">Українська</option>
+          <option value="en">English</option>
+          <option value="ru">Русский</option>
+        </select>
+      </label>
+      <button id="themeBtn" class="ghost">🌙 Dark</button>
+      <button id="resetBtn" class="ghost danger">Скинути прогрес</button>
+    </section>
 
-      <section class="home-control-grid">
-        <section class="card profile-card">
-          <div class="section-title-row"><h2 data-i18n="profile">Профіль</h2><button id="createProfileBtn" class="text-btn" type="button" data-i18n="createProfile">+ Створити</button></div>
-          <div class="profile-row"><div class="profile-avatar"><svg><use href="#i-user"/></svg></div><div class="profile-main"><select id="profileSelect" aria-label="Profile"></select><small data-i18n="progressSaved">Прогрес зберігається окремо</small></div></div>
-        </section>
-        <section class="card settings-card">
-          <label><span data-i18n="language">Мова</span><select id="languageSelect"><option value="ua">Українська</option><option value="en">English</option><option value="ru">Русский</option><option value="en-ua">English + Українська</option><option value="en-ru">English + Русский</option></select></label>
-        </section>
-      </section>
-
-      <section id="resumeCard" class="card resume-card hidden">
-        <div class="resume-ring"><span id="resumePercent">0%</span></div>
-        <div class="resume-content"><span class="resume-kicker">YOUR PROGRESS</span><b data-i18n="continueLast">Продовжити з останнього питання</b><small id="resumeText">Питання 1 з 801</small><div class="mini-track"><div id="resumeBar"></div></div></div>
-        <button id="resumeBtn" type="button"><span data-i18n="open">Відкрити</span><b>→</b></button>
-      </section>
-
-      <div class="section-heading"><div><span>TRAINING</span><h2>Оберіть режим</h2></div></div>
-      <section class="mode-grid">
-        <button class="mode-card featured" data-mode="all"><span class="mode-icon green"><svg><use href="#i-book"/></svg></span><span class="mode-content"><b data-i18n="allQuestions">Усі питання</b><small id="allProgress">0 / 801</small></span><i>→</i></button>
-        <button class="mode-card featured" data-mode="exam"><span class="mode-icon blue"><svg><use href="#i-clipboard"/></svg></span><span class="mode-content"><b data-i18n="officialExam">40 — пробний іспит</b><small>45 min · 35/40</small></span><i>→</i></button>
-        <button class="mode-card" data-mode="mistakes"><span class="mode-icon red"><svg><use href="#i-alert"/></svg></span><span class="mode-content"><b data-i18n="mistakes">Лише помилки</b><small id="mistakesCount">0</small></span><i>→</i></button>
-        <button class="mode-card" data-mode="favorites"><span class="mode-icon amber"><svg><use href="#i-star"/></svg></span><span class="mode-content"><b data-i18n="favorites">Лише закладки</b><small id="favoritesCount">0</small></span><i>→</i></button>
-        <button class="mode-card" id="searchModeBtn" type="button"><span class="mode-icon cyan"><svg><use href="#i-search"/></svg></span><span class="mode-content"><b data-i18n="searchNumber">Пошук за номером</b><small data-i18n="openQuestion">Відкрити конкретне питання</small></span><i>→</i></button>
-        <button class="mode-card" data-mode="random20"><span class="mode-icon violet"><svg><use href="#i-dice"/></svg></span><span class="mode-content"><b data-i18n="random20">20 випадкових</b><small data-i18n="morePractice">Більше практики</small></span><i>→</i></button>
-      </section>
-
-      <section id="searchPanel" class="card tools-card hidden"><label><span data-i18n="searchNumber">Пошук за номером</span><div class="inline-control"><input id="searchInput" inputmode="numeric" type="number" min="1" max="801" placeholder="701" /><button id="searchBtn" type="button" data-i18n="open">Відкрити</button></div></label></section>
-
-      <div class="section-heading"><div><span>INSIGHTS</span><h2 data-i18n="statistics">Статистика</h2></div></div>
-      <section class="card stats-card">
-        <div class="stats-grid">
-          <div><em>01</em><strong id="statAnswered">0</strong><span data-i18n="completed">Пройдено</span></div>
-          <div><em>02</em><strong id="statCorrect">0</strong><span data-i18n="correctAnswers">Правильних</span></div>
-          <div><em>03</em><strong id="statMistakes">0</strong><span data-i18n="errors">Помилок</span></div>
-          <div><em>04</em><strong id="statSuccess">0%</strong><span data-i18n="successRate">Успішність</span></div>
-        </div>
-        <div class="exam-stats"><div class="section-title-row compact"><h3 data-i18n="exams">Іспити</h3><span>40 QUESTIONS</span></div><div class="exam-grid"><div><strong id="examCount">0</strong><span data-i18n="examsTaken">Складено іспитів</span></div><div><strong id="examAverage">—</strong><span data-i18n="averageResult">Середній результат</span></div><div><strong id="examBest">—</strong><span data-i18n="bestResult">Найкращий результат</span></div></div></div>
-        <button id="homeResetProgress" class="reset-row" type="button"><svg><use href="#i-reset"/></svg><span data-i18n="resetProgress">Скинути прогрес</span><b>›</b></button>
-      </section>
-      <footer class="home-footer">Made for learners in Ireland <span>☘</span></footer>
+    <main id="quiz" class="quiz hidden">
+      <div class="quiz-top">
+        <button id="backBtn" class="ghost">← Menu</button>
+        <div class="counter" id="counter">1 / 40</div>
+        <button id="favBtn" class="star">☆</button>
+      </div>
+      <div class="bar"><span id="bar"></span></div>
+      <article class="question-card">
+        <div class="meta"><span id="qid">№</span><span id="modeLabel"></span></div>
+        <img id="qImg" class="qimg hidden" alt="Question image" />
+        <h2 id="question"></h2>
+        <div id="answers" class="answers"></div>
+        <div id="feedback" class="feedback hidden"></div>
+      </article>
+      <div class="nav">
+        <button id="prevBtn" class="secondary">Назад</button>
+        <button id="nextBtn">Далі</button>
+      </div>
     </main>
 
-    <main id="quizView" class="quiz-view hidden" aria-live="polite">
-      <header class="quiz-header">
-        <button id="homeBtn" class="icon-btn" type="button" aria-label="Back to menu">←</button>
-        <div class="progress-box"><div class="progress-line"><span id="progressText">1 / 801</span><span id="examTimer" class="exam-timer hidden">45:00</span></div><div class="progress-track"><div id="progressBar"></div></div></div>
-        <div class="quiz-header-actions"><button id="favoriteBtn" class="icon-btn bookmark-header-btn" type="button" aria-label="Bookmark"><svg><use href="#i-bookmark"/></svg></button><button id="settingsBtn" class="icon-btn" type="button" aria-label="Settings"><svg><use href="#i-settings"/></svg></button></div>
-      </header>
-      <section id="questionCard" class="question-card card">
-        <div id="questionText" class="question-text"></div>
-        <div id="imageWrap" class="image-wrap hidden"><img id="questionImage" alt="Question illustration" /><button id="zoomBtn" class="zoom-btn" type="button" aria-label="Zoom image"><svg><use href="#i-search"/></svg></button></div>
-        <div id="answers" class="answers"></div><div id="answerFeedback" class="answer-feedback hidden" role="status"></div>
-      </section>
-      <footer class="quiz-footer"><button id="prevBtn" class="footer-action" type="button"><span>←</span><small data-i18n="back">Назад</small></button><button id="nextBtn" class="footer-action primary" type="button"><small data-i18n="next">Далі</small><span>→</span></button></footer>
-    </main>
-  </div>
+    <section id="result" class="panel result hidden">
+      <h2>Результат</h2>
+      <p id="resultText"></p>
+      <div id="resultList" class="result-list"></div>
+      <button id="homeBtn">Повернутися в меню</button>
+    </section>
 
-  <div id="drawerBackdrop" class="drawer-backdrop hidden"></div>
-  <aside id="settingsDrawer" class="drawer" aria-hidden="true"><div class="drawer-head"><h2 data-i18n="settings">Налаштування</h2><button id="closeDrawer" class="icon-btn" type="button">×</button></div><label><span data-i18n="profile">Профіль</span><select id="drawerProfile"></select></label><label><span data-i18n="language">Мова</span><select id="drawerLanguage"></select></label><button id="drawerTheme" class="drawer-button" type="button"><svg><use href="#i-moon"/></svg><span data-i18n="theme">Тема</span></button><button id="resetProgress" class="drawer-button danger" type="button"><svg><use href="#i-reset"/></svg><span data-i18n="resetProgress">Скинути прогрес</span></button><button id="drawerHome" class="drawer-button" type="button" data-i18n="home">На головну</button></aside>
-  <div id="imageModal" class="image-modal hidden"><button id="closeImage" type="button">×</button><img id="modalImage" alt="Expanded question illustration" /></div>
-  <div id="startChoiceModal" class="choice-modal hidden"><div class="choice-card card"><h2 id="startChoiceTitle">Усі питання</h2><p id="startChoiceText">Звідки почати?</p><button id="startFromFirst" type="button" class="choice-primary">З першого питання</button><button id="startFromLast" type="button" class="choice-secondary">Продовжити з останнього</button><button id="cancelStartChoice" type="button" class="choice-cancel">Скасувати</button></div></div>
-  <div id="examResultModal" class="result-modal hidden">
-    <div class="result-card card">
-      <div class="result-topbar">
-        <button id="resultBackBtn" type="button" class="result-back" aria-label="Back">←</button>
-        <div id="resultTopTitle" class="result-top-title">Результат іспиту</div>
-        <button id="closeResult" type="button" class="icon-btn result-close">×</button>
-      </div>
-      <div class="result-head">
-        <div>
-          <div id="resultStatus" class="result-status">PASS</div>
-          <h2 id="resultTitle">Результат іспиту</h2>
-        </div>
-      </div>
-      <div class="result-summary">
-        <div class="result-stat score"><span class="result-stat-icon">✓</span><strong id="resultScore">0/40</strong><span id="resultScoreLabel">Правильні відповіді</span><small id="resultScorePercent">0%</small></div>
-        <div class="result-stat time"><span class="result-stat-icon">◷</span><strong id="resultTime">00:00</strong><span id="resultTimeLabel">Час проходження</span></div>
-        <div class="result-stat mistakes"><span class="result-stat-icon">×</span><strong id="resultMistakeCount">0</strong><span id="resultMistakeLabel">Помилок</span><small id="resultMistakePercent">0%</small></div>
-      </div>
-      <h3 id="mistakesTitle">Питання з помилками</h3>
-      <div id="examMistakesList" class="exam-mistakes-list"></div>
-      <div id="resultTip" class="result-tip"><span>💡</span><div><b id="resultTipTitle">Порада</b><p id="resultTipText">Перегляньте неправильні відповіді перед наступною спробою.</p></div></div>
-      <div class="result-actions"><button id="resultHomeBtn" class="choice-secondary" type="button">Усі питання</button><button id="resultRetryBtn" class="choice-primary" type="button">Спробувати знову</button></div>
-    </div>
+    <section id="stats" class="panel result hidden">
+      <h2>Статистика</h2>
+      <p id="statsText"></p>
+      <button id="statsHomeBtn">Повернутися в меню</button>
+    </section>
   </div>
   <script src="app.js"></script>
 </body>
