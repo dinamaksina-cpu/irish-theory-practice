@@ -1,10 +1,17 @@
-Version 5.2 — real result-screen redesign
+DRIVING THEORY UX PREVIEW
 
-Changes:
-- New exam result screen matching the approved mockup
-- Both languages are shown in dual-language modes
-- Questions, selected answers and correct answers are bilingual
-- New result cards, numbered error list, tip block and retry button
-- Existing profiles, progress, exam timer, answer shuffle and question database retained
+Це окремий UX-прототип нового екрана питання.
+Він не містить і не змінює вашу базу JSON.
 
-Upload index.html, style.css, app.js and questions.json. Keep your images folder unchanged.
+У файлі реалізовано:
+- адаптивний дизайн у стилі застосунку;
+- усе питання на одній сторінці;
+- кнопки Назад / Далі знизу;
+- Зберегти та Налаштування зверху;
+- сегментований прогрес;
+- модальне збільшення фото;
+- мобільна і десктопна версії.
+
+Щоб перенести дизайн без зміни функціоналу вашого сайту,
+потрібно застосувати styles.css і структуру HTML до вашого поточного проєкту.
+Для точного перенесення надішліть ZIP поточного проєкту.
