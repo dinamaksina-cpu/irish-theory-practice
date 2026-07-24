@@ -1,3 +1,11 @@
+const SUPABASE_URL = "https://yhlyclbhmvpmdzjnwjhr.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_4VLPiMgmHjp_mXOpOpqVCw_feqR1JfN";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const STORAGE = {lang:'dtt_lang',theme:'dtt_theme',profiles:'dtt_profiles_v31',active:'dtt_active_profile_v31'};
