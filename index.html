@@ -27,7 +27,7 @@
       <header class="home-topbar">
         <div class="welcome">
           <div class="avatar"><svg><use href="#i-user"/></svg></div>
-          <div><small>Irish Driving Theory</small><strong id="welcomeName">Вітаємо!</strong></div>
+          <div><small>Irish Driving Theory</small><strong id="welcomeName">Вітаємо!</strong><span id="planBadge" class="plan-badge">Безкоштовний</span></div>
         </div>
         <button id="themeBtn" class="round-btn" type="button" aria-label="Theme"><svg><use href="#i-moon"/></svg></button>
       </header>
@@ -74,10 +74,10 @@
 
       <div class="section-heading"><div><span>TRAINING</span><h2>Оберіть режим</h2></div></div>
       <section class="mode-grid">
-        <button class="mode-card featured" data-mode="all"><span class="mode-icon green"><svg><use href="#i-book"/></svg></span><span class="mode-content"><b data-i18n="allQuestions">Усі питання</b><small id="allProgress">0 / 801</small></span><i>→</i></button>
-        <button class="mode-card featured" data-mode="exam"><span class="mode-icon blue"><svg><use href="#i-clipboard"/></svg></span><span class="mode-content"><b data-i18n="officialExam">40 — пробний іспит</b><small>45 min · 35/40</small></span><i>→</i></button>
-        <button class="mode-card" data-mode="mistakes"><span class="mode-icon red"><svg><use href="#i-alert"/></svg></span><span class="mode-content"><b data-i18n="mistakes">Лише помилки</b><small id="mistakesCount">0</small></span><i>→</i></button>
-        <button class="mode-card" data-mode="favorites"><span class="mode-icon amber"><svg><use href="#i-star"/></svg></span><span class="mode-content"><b data-i18n="favorites">Лише закладки</b><small id="favoritesCount">0</small></span><i>→</i></button>
+        <button class="mode-card featured" data-mode="all"><span class="mode-icon green"><svg><use href="#i-book"/></svg></span><span class="mode-content"><b data-i18n="allQuestions">Усі питання</b><small id="allProgress">0 / 60</small><em id="allAccessHint" class="access-hint">Перші 60 питань</em></span><i>→</i></button>
+        <button class="mode-card featured" data-mode="exam"><span class="mode-icon blue"><svg><use href="#i-clipboard"/></svg></span><span class="mode-content"><b data-i18n="officialExam">40 — пробний іспит</b><small>45 min · 35/40</small><em id="examAccessHint" class="access-hint">Демо-іспитів залишилось: 3</em></span><i>→</i></button>
+        <button class="mode-card" data-mode="mistakes" data-premium-only><span class="mode-icon red"><svg><use href="#i-alert"/></svg></span><span class="mode-content"><b data-i18n="mistakes">Лише помилки</b><small id="mistakesCount">0</small></span><i>→</i></button>
+        <button class="mode-card" data-mode="favorites" data-premium-only><span class="mode-icon amber"><svg><use href="#i-star"/></svg></span><span class="mode-content"><b data-i18n="favorites">Лише закладки</b><small id="favoritesCount">0</small></span><i>→</i></button>
         <button class="mode-card" id="searchModeBtn" type="button"><span class="mode-icon cyan"><svg><use href="#i-search"/></svg></span><span class="mode-content"><b data-i18n="searchNumber">Пошук за номером</b><small data-i18n="openQuestion">Відкрити конкретне питання</small></span><i>→</i></button>
         <button class="mode-card" data-mode="random20"><span class="mode-icon violet"><svg><use href="#i-dice"/></svg></span><span class="mode-content"><b data-i18n="random20">20 випадкових</b><small data-i18n="morePractice">Більше практики</small></span><i>→</i></button>
       </section>
@@ -99,13 +99,13 @@
           </div>
         </article>
 
-        <div class="practice-metrics-grid">
+        <div class="practice-metrics-grid" data-premium-section>
           <article class="card metric-card metric-correct"><span class="metric-icon">✓</span><div><strong id="statCorrect">0</strong><span data-i18n="correctAnswers">Правильних</span></div><small id="correctShare">0%</small></article>
           <article class="card metric-card metric-errors"><span class="metric-icon">×</span><div><strong id="statMistakes">0</strong><span data-i18n="errors">Помилок</span></div><small id="mistakeShare">0%</small></article>
           <article class="card metric-card metric-bookmarks"><span class="metric-icon"><svg><use href="#i-bookmark"/></svg></span><div><strong id="statBookmarks">0</strong><span data-i18n="favorites">Закладки</span></div><small id="bookmarkHint">Saved</small></article>
         </div>
 
-        <article class="card exam-insights-card">
+        <article class="card exam-insights-card" data-premium-section>
           <div class="exam-insights-head">
             <div><span class="stats-kicker">OFFICIAL FORMAT</span><h3 data-i18n="exams">Іспити</h3></div>
             <div id="examReadiness" class="readiness-badge">Почніть перший іспит</div>
@@ -168,6 +168,21 @@
       <div id="examMistakesList" class="exam-mistakes-list"></div>
       <div id="resultTip" class="result-tip"><span>💡</span><div><b id="resultTipTitle">Порада</b><p id="resultTipText">Перегляньте неправильні відповіді перед наступною спробою.</p></div></div>
       <div class="result-actions"><button id="resultHomeBtn" class="choice-secondary" type="button">Усі питання</button><button id="resultRetryBtn" class="choice-primary" type="button">Спробувати знову</button></div>
+    </div>
+  </div>
+
+  <div id="premiumModal" class="premium-modal hidden">
+    <div class="premium-card card">
+      <button id="closePremiumModal" class="premium-close" type="button" aria-label="Close">×</button>
+      <div class="premium-crown">♛</div>
+      <span class="premium-kicker">IRISH THEORY PREMIUM</span>
+      <h2 id="premiumModalTitle">Отримати Premium</h2>
+      <p id="premiumModalText">Відкрийте повний доступ до навчання.</p>
+      <div class="premium-benefits">
+        <span>✓ Усі питання</span><span>✓ Необмежені іспити</span><span>✓ Помилки та закладки</span><span>✓ Повна статистика</span>
+      </div>
+      <button id="premiumUpgradeBtn" class="premium-upgrade-btn" type="button">Отримати Premium</button>
+      <small>Оплата буде підключена на наступному етапі</small>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
