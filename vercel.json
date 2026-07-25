@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    { "source": "/auth/telegram/callback", "destination": "/api/telegram-callback" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }
+      ]
+    }
+  ]
+}

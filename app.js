@@ -1,17 +1,3 @@
-const SUPABASE_URL = "https://yhlyclbhmvpmdzjnwjhr.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4VLPiMgmHjp_mXOpOpqVCw_feqR1JfN";
-const supabaseClient = window.supabase?.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY,
-  {
-    auth: {
-      detectSessionInUrl: true,
-      persistSession: true,
-      autoRefreshToken: true
-    }
-  }
-);
-
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const STORAGE = {lang:'dtt_lang',theme:'dtt_theme',profiles:'dtt_profiles_v31',active:'dtt_active_profile_v31'};
@@ -109,8 +95,7 @@ function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;',
 function openDrawer(){$('#settingsDrawer').classList.add('open');$('#settingsDrawer').setAttribute('aria-hidden','false');$('#drawerBackdrop').classList.remove('hidden')}
 function closeDrawer(){$('#settingsDrawer').classList.remove('open');$('#settingsDrawer').setAttribute('aria-hidden','true');$('#drawerBackdrop').classList.add('hidden')}
 function telegramDisplayName(user){
-  const m=user?.user_metadata||{};
-  return m.full_name||m.name||m.preferred_username||m.username||user?.email||'Telegram user';
+  return user?.name||user?.preferred_username||user?.username||'Telegram user';
 }
 function setTelegramMessage(text='',isError=false){
   const el=$('#telegramAuthMessage');
@@ -119,51 +104,43 @@ function setTelegramMessage(text='',isError=false){
   el.classList.toggle('hidden',!text);
   el.classList.toggle('error',isError);
 }
-function updateTelegramAuthUI(session){
-  const loggedIn=Boolean(session?.user);
+function updateTelegramAuthUI(user){
+  const loggedIn=Boolean(user?.id);
   $('#telegramLoginBtn')?.classList.toggle('hidden',loggedIn);
   $('#telegramUserInfo')?.classList.toggle('hidden',!loggedIn);
-  if(loggedIn&&$('#telegramUserName'))$('#telegramUserName').textContent=telegramDisplayName(session.user);
+  if(loggedIn&&$('#telegramUserName'))$('#telegramUserName').textContent=telegramDisplayName(user);
   if(loggedIn)setTelegramMessage('');
 }
-async function signInWithTelegram(){
-  if(!supabaseClient){setTelegramMessage(t('telegramError'),true);return}
+function signInWithTelegram(){
   setTelegramMessage(t('telegramSigningIn'));
-  const redirectTo=`${window.location.origin}${window.location.pathname}`;
-  const {error}=await supabaseClient.auth.signInWithOAuth({
-    provider:'custom:telegram',
-    options:{redirectTo}
-  });
-  if(error){console.error(error);setTelegramMessage(`${t('telegramError')}: ${error.message}`,true)}
+  window.location.assign('/api/telegram-login');
 }
 async function signOutTelegram(){
-  if(!supabaseClient)return;
-  const {error}=await supabaseClient.auth.signOut();
-  if(error){console.error(error);setTelegramMessage(error.message,true);return}
-  updateTelegramAuthUI(null);
+  try{
+    await fetch('/api/logout',{method:'POST',credentials:'same-origin'});
+    updateTelegramAuthUI(null);
+  }catch(error){
+    console.error(error);
+    setTelegramMessage(t('telegramError'),true);
+  }
 }
 async function initTelegramAuth(){
-  if(!supabaseClient){setTelegramMessage(t('telegramError'),true);return}
-
-  // Register the listener first so the UI updates as soon as Supabase
-  // restores a session from the OAuth callback URL.
-  supabaseClient.auth.onAuthStateChange((_event,currentSession)=>{
-    updateTelegramAuthUI(currentSession);
-    if(currentSession?.user){
-      const cleanUrl=`${window.location.pathname}${window.location.search}`;
-      window.history.replaceState({},document.title,cleanUrl);
-    }
-  });
-
-  const {data,error}=await supabaseClient.auth.getSession();
-  if(error){
-    console.error(error);
-    setTelegramMessage(`${t('telegramError')}: ${error.message}`,true);
-  }
-  updateTelegramAuthUI(data?.session||null);
-
   $('#telegramLoginBtn').onclick=signInWithTelegram;
   $('#telegramLogoutBtn').onclick=signOutTelegram;
+  try{
+    const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+    if(!response.ok){updateTelegramAuthUI(null);return}
+    const data=await response.json();
+    updateTelegramAuthUI(data.user||null);
+    const url=new URL(window.location.href);
+    if(url.searchParams.has('telegram_login')){
+      url.searchParams.delete('telegram_login');
+      window.history.replaceState({},document.title,url.pathname+url.search+url.hash);
+    }
+  }catch(error){
+    console.error(error);
+    updateTelegramAuthUI(null);
+  }
 }
 
 async function init(){if(localStorage.getItem(STORAGE.theme)==='dark')document.documentElement.classList.add('dark');const res=await fetch('questions.json',{cache:'no-store'});questions=await res.json();if(!profiles[activeProfileId])activeProfileId=Object.keys(profiles)[0];const opts=$('#languageSelect').innerHTML;$('#drawerLanguage').innerHTML=opts;populateProfiles();setLang(lang);updateHome();$$('.mode-card[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='all'?openAllChoice():start(b.dataset.mode));$('#startFromFirst').onclick=()=>{closeAllChoice();start('all',null,'first')};$('#startFromLast').onclick=()=>{closeAllChoice();start('all',null,'last')};$('#cancelStartChoice').onclick=closeAllChoice;$('#startChoiceModal').onclick=e=>{if(e.target===$('#startChoiceModal'))closeAllChoice()};$('#searchModeBtn').onclick=()=>{$('#searchPanel').classList.toggle('hidden');$('#searchInput').focus()};$('#searchBtn').onclick=()=>{const n=Number($('#searchInput').value);if(n>=1&&n<=questions.length)start('all',n)};$('#resumeBtn').onclick=()=>start('all',null,'last');$('#themeBtn').onclick=toggleTheme;$('#drawerTheme').onclick=toggleTheme;$('#languageSelect').onchange=e=>setLang(e.target.value);$('#drawerLanguage').onchange=e=>setLang(e.target.value);$('#profileSelect').onchange=e=>switchProfile(e.target.value);$('#drawerProfile').onchange=e=>switchProfile(e.target.value);$('#createProfileBtn').onclick=createProfile;$('#homeBtn').onclick=showHome;$('#drawerHome').onclick=showHome;$('#settingsBtn').onclick=openDrawer;$('#closeDrawer').onclick=closeDrawer;$('#drawerBackdrop').onclick=closeDrawer;$('#prevBtn').onclick=prev;$('#nextBtn').onclick=next;$('#favoriteBtn').onclick=()=>{const s=sets(),id=session[index].id;s.favorites.has(id)?s.favorites.delete(id):s.favorites.add(id);saveSets(s);render()};$('#resetProgress').onclick=resetActiveProgress;$('#homeResetProgress').onclick=resetActiveProgress;$('#zoomBtn').onclick=()=>{$('#modalImage').src=$('#questionImage').src;$('#imageModal').classList.remove('hidden')};$('#closeImage').onclick=()=>$('#imageModal').classList.add('hidden');$('#imageModal').onclick=e=>{if(e.target===$('#imageModal'))$('#imageModal').classList.add('hidden')};$('#closeResult').onclick=closeResult;$('#resultBackBtn').onclick=closeResult;$('#resultHomeBtn').onclick=closeResult;$('#resultRetryBtn').onclick=()=>{ $('#examResultModal').classList.add('hidden'); start('exam') };await initTelegramAuth();document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeAllChoice();$('#imageModal').classList.add('hidden')}})}
