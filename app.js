@@ -1,28 +1,40 @@
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const STORAGE = {lang:'dtt_lang',theme:'dtt_theme',profiles:'dtt_profiles_v31',active:'dtt_active_profile_v31'};
+const STORAGE = {lang:'dtt_lang',theme:'dtt_theme',profiles:'dtt_profiles_v31',active:'dtt_active_profile_v31',cloudUpdated:'dtt_cloud_updated_v1'};
 let questions=[], session=[], index=0, mode='all', selected=null, checkedAnswer=null, examAnswers=[];
 let examSeconds=45*60, examStartedAt=0, examTimerId=null;
 let lang=localStorage.getItem(STORAGE.lang)||'ua';
 let profiles=loadProfiles();
 let activeProfileId=localStorage.getItem(STORAGE.active)||Object.keys(profiles)[0];
+let telegramUser=null, cloudSyncReady=false, cloudSyncTimer=null, cloudSyncInProgress=false;
 
 const translations={
- ua:{questions:'питань',language:'Мова',theme:'Тема',random20:'20 випадкових',morePractice:'Більше практики',officialExam:'40 — пробний іспит',allQuestions:'Усі питання',mistakes:'Лише помилки',favorites:'Лише закладки',searchNumber:'Пошук за номером',openQuestion:'Відкрити конкретне питання',open:'Відкрити',back:'Назад',bookmark:'Закладка',next:'Далі',settings:'Налаштування',resetProgress:'Скинути прогрес',home:'На головну',profile:'Профіль',createProfile:'+ Створити',progressSaved:'Прогрес зберігається окремо',continueLast:'Продовжити з останнього питання',statistics:'Статистика',completed:'Пройдено',correctAnswers:'Правильних',errors:'Помилок',successRate:'Успішність',exams:'Іспити',examsTaken:'Складено іспитів',averageResult:'Середній результат',bestResult:'Найкращий результат',correct:'Вірно',incorrect:'Невірно',startFirst:'З першого питання',startLast:'Продовжити з останнього',whereStart:'Звідки почати?',cancel:'Скасувати',examResult:'Результат іспиту',mistakeQuestions:'Питання з помилками',yourAnswer:'Ваша відповідь',rightAnswer:'Правильна відповідь',time:'Час',result:'Результат',telegramLogin:'Увійти через Telegram',telegramConnected:'Telegram підключено',logout:'Вийти',telegramSigningIn:'Відкриваємо Telegram…',telegramError:'Не вдалося увійти через Telegram'},
- en:{questions:'questions',language:'Language',theme:'Theme',random20:'20 random questions',morePractice:'More practice',officialExam:'40 — official exam',allQuestions:'All questions',mistakes:'Mistakes only',favorites:'Bookmarks only',searchNumber:'Search by number',openQuestion:'Open a specific question',open:'Open',back:'Back',bookmark:'Bookmark',next:'Next',settings:'Settings',resetProgress:'Reset progress',home:'Back to home',profile:'Profile',createProfile:'+ Create',progressSaved:'Progress is saved separately',continueLast:'Continue from last question',statistics:'Statistics',completed:'Completed',correctAnswers:'Correct',errors:'Mistakes',successRate:'Success rate',exams:'Exams',examsTaken:'Exams taken',averageResult:'Average result',bestResult:'Best result',correct:'Correct',incorrect:'Incorrect',startFirst:'Start from question 1',startLast:'Continue from the last question',whereStart:'Where would you like to start?',cancel:'Cancel',examResult:'Exam result',mistakeQuestions:'Questions answered incorrectly',yourAnswer:'Your answer',rightAnswer:'Correct answer',time:'Time',result:'Result',telegramLogin:'Continue with Telegram',telegramConnected:'Telegram connected',logout:'Log out',telegramSigningIn:'Opening Telegram…',telegramError:'Could not sign in with Telegram'},
- ru:{questions:'вопросов',language:'Язык',theme:'Тема',random20:'20 случайных',morePractice:'Больше практики',officialExam:'40 — пробный экзамен',allQuestions:'Все вопросы',mistakes:'Только ошибки',favorites:'Только закладки',searchNumber:'Поиск по номеру',openQuestion:'Открыть конкретный вопрос',open:'Открыть',back:'Назад',bookmark:'Закладка',next:'Далее',settings:'Настройки',resetProgress:'Сбросить прогресс',home:'На главную',profile:'Профиль',createProfile:'+ Создать',progressSaved:'Прогресс сохраняется отдельно',continueLast:'Продолжить с последнего вопроса',statistics:'Статистика',completed:'Пройдено',correctAnswers:'Правильных',errors:'Ошибок',successRate:'Успешность',exams:'Экзамены',examsTaken:'Сдано экзаменов',averageResult:'Средний результат',bestResult:'Лучший результат',correct:'Верно',incorrect:'Неверно',startFirst:'С первого вопроса',startLast:'Продолжить с последнего',whereStart:'С какого вопроса начать?',cancel:'Отмена',examResult:'Результат экзамена',mistakeQuestions:'Вопросы с ошибками',yourAnswer:'Ваш ответ',rightAnswer:'Правильный ответ',time:'Время',result:'Результат',telegramLogin:'Войти через Telegram',telegramConnected:'Telegram подключён',logout:'Выйти',telegramSigningIn:'Открываем Telegram…',telegramError:'Не удалось войти через Telegram'}
+ ua:{questions:'питань',language:'Мова',theme:'Тема',random20:'20 випадкових',morePractice:'Більше практики',officialExam:'40 — пробний іспит',allQuestions:'Усі питання',mistakes:'Лише помилки',favorites:'Лише закладки',searchNumber:'Пошук за номером',openQuestion:'Відкрити конкретне питання',open:'Відкрити',back:'Назад',bookmark:'Закладка',next:'Далі',settings:'Налаштування',resetProgress:'Скинути прогрес',home:'На головну',profile:'Профіль',createProfile:'+ Створити',progressSaved:'Прогрес зберігається окремо',continueLast:'Продовжити з останнього питання',statistics:'Статистика',completed:'Пройдено',correctAnswers:'Правильних',errors:'Помилок',successRate:'Успішність',exams:'Іспити',examsTaken:'Складено іспитів',averageResult:'Середній результат',bestResult:'Найкращий результат',correct:'Вірно',incorrect:'Невірно',startFirst:'З першого питання',startLast:'Продовжити з останнього',whereStart:'Звідки почати?',cancel:'Скасувати',examResult:'Результат іспиту',mistakeQuestions:'Питання з помилками',yourAnswer:'Ваша відповідь',rightAnswer:'Правильна відповідь',time:'Час',result:'Результат',telegramLogin:'Увійти через Telegram',telegramConnected:'Telegram підключено',logout:'Вийти',telegramSigningIn:'Відкриваємо Telegram…',telegramError:'Не вдалося увійти через Telegram',cloudSyncing:'Зберігаємо прогрес…',cloudSynced:'Прогрес синхронізовано',cloudLoaded:'Хмарний прогрес завантажено',cloudError:'Не вдалося синхронізувати прогрес'},
+ en:{questions:'questions',language:'Language',theme:'Theme',random20:'20 random questions',morePractice:'More practice',officialExam:'40 — official exam',allQuestions:'All questions',mistakes:'Mistakes only',favorites:'Bookmarks only',searchNumber:'Search by number',openQuestion:'Open a specific question',open:'Open',back:'Back',bookmark:'Bookmark',next:'Next',settings:'Settings',resetProgress:'Reset progress',home:'Back to home',profile:'Profile',createProfile:'+ Create',progressSaved:'Progress is saved separately',continueLast:'Continue from last question',statistics:'Statistics',completed:'Completed',correctAnswers:'Correct',errors:'Mistakes',successRate:'Success rate',exams:'Exams',examsTaken:'Exams taken',averageResult:'Average result',bestResult:'Best result',correct:'Correct',incorrect:'Incorrect',startFirst:'Start from question 1',startLast:'Continue from the last question',whereStart:'Where would you like to start?',cancel:'Cancel',examResult:'Exam result',mistakeQuestions:'Questions answered incorrectly',yourAnswer:'Your answer',rightAnswer:'Correct answer',time:'Time',result:'Result',telegramLogin:'Continue with Telegram',telegramConnected:'Telegram connected',logout:'Log out',telegramSigningIn:'Opening Telegram…',telegramError:'Could not sign in with Telegram',cloudSyncing:'Saving progress…',cloudSynced:'Progress synced',cloudLoaded:'Cloud progress loaded',cloudError:'Could not sync progress'},
+ ru:{questions:'вопросов',language:'Язык',theme:'Тема',random20:'20 случайных',morePractice:'Больше практики',officialExam:'40 — пробный экзамен',allQuestions:'Все вопросы',mistakes:'Только ошибки',favorites:'Только закладки',searchNumber:'Поиск по номеру',openQuestion:'Открыть конкретный вопрос',open:'Открыть',back:'Назад',bookmark:'Закладка',next:'Далее',settings:'Настройки',resetProgress:'Сбросить прогресс',home:'На главную',profile:'Профиль',createProfile:'+ Создать',progressSaved:'Прогресс сохраняется отдельно',continueLast:'Продолжить с последнего вопроса',statistics:'Статистика',completed:'Пройдено',correctAnswers:'Правильных',errors:'Ошибок',successRate:'Успешность',exams:'Экзамены',examsTaken:'Сдано экзаменов',averageResult:'Средний результат',bestResult:'Лучший результат',correct:'Верно',incorrect:'Неверно',startFirst:'С первого вопроса',startLast:'Продолжить с последнего',whereStart:'С какого вопроса начать?',cancel:'Отмена',examResult:'Результат экзамена',mistakeQuestions:'Вопросы с ошибками',yourAnswer:'Ваш ответ',rightAnswer:'Правильный ответ',time:'Время',result:'Результат',telegramLogin:'Войти через Telegram',telegramConnected:'Telegram подключён',logout:'Выйти',telegramSigningIn:'Открываем Telegram…',telegramError:'Не удалось войти через Telegram',cloudSyncing:'Сохраняем прогресс…',cloudSynced:'Прогресс синхронизирован',cloudLoaded:'Облачный прогресс загружен',cloudError:'Не удалось синхронизировать прогресс'}
 };
 function defaultProfile(name='Мій профіль'){return {name,favorites:[],mistakes:[],answered:[],correct:[],last:0,examScores:[]}}
 function loadProfiles(){try{const saved=JSON.parse(localStorage.getItem(STORAGE.profiles)||'null');if(saved&&Object.keys(saved).length)return saved}catch{}const legacy={favorites:JSON.parse(localStorage.getItem('dtt_favorites')||'[]'),mistakes:JSON.parse(localStorage.getItem('dtt_mistakes')||'[]'),answered:JSON.parse(localStorage.getItem('dtt_answered')||'[]'),last:Number(localStorage.getItem('dtt_last')||0)};const p=defaultProfile();Object.assign(p,legacy);return {default:p}}
 function profile(){return profiles[activeProfileId]}
-function saveProfiles(){localStorage.setItem(STORAGE.profiles,JSON.stringify(profiles));localStorage.setItem(STORAGE.active,activeProfileId)}
+function saveProfiles(options={}){
+  localStorage.setItem(STORAGE.profiles,JSON.stringify(profiles));
+  localStorage.setItem(STORAGE.active,activeProfileId);
+  if(!options.fromCloud){
+    localStorage.setItem(STORAGE.cloudUpdated,String(Date.now()));
+    queueCloudSync();
+  }
+}
+function markLocalChange(){
+  localStorage.setItem(STORAGE.cloudUpdated,String(Date.now()));
+  queueCloudSync();
+}
 function sets(){const p=profile();return {favorites:new Set(p.favorites),mistakes:new Set(p.mistakes),answered:new Set(p.answered),correct:new Set(p.correct)}}
 function saveSets(s){const p=profile();p.favorites=[...s.favorites];p.mistakes=[...s.mistakes];p.answered=[...s.answered];p.correct=[...s.correct];saveProfiles();updateHome()}
 function baseLang(){return lang.startsWith('en')?'en':lang.startsWith('ru')?'ru':'ua'}
 function t(k){return translations[baseLang()][k]||k}
 function applyI18n(){$$('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));document.documentElement.lang=baseLang();updateHome()}
-function setLang(v){lang=v;localStorage.setItem(STORAGE.lang,v);$('#languageSelect').value=v;$('#drawerLanguage').value=v;applyI18n();if(!$('#quizView').classList.contains('hidden'))render()}
-function toggleTheme(){document.documentElement.classList.toggle('dark');localStorage.setItem(STORAGE.theme,document.documentElement.classList.contains('dark')?'dark':'light')}
+function setLang(v,options={}){lang=v;localStorage.setItem(STORAGE.lang,v);$('#languageSelect').value=v;$('#drawerLanguage').value=v;applyI18n();if(!options.fromCloud)markLocalChange();if(!$('#quizView').classList.contains('hidden'))render()}
+function toggleTheme(){document.documentElement.classList.toggle('dark');localStorage.setItem(STORAGE.theme,document.documentElement.classList.contains('dark')?'dark':'light');markLocalChange()}
 function shuffle(a){
   const copy=[...a];
   for(let i=copy.length-1;i>0;i--){
@@ -94,6 +106,83 @@ function createProfile(){const name=prompt(baseLang()==='en'?'Profile name':base
 function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function openDrawer(){$('#settingsDrawer').classList.add('open');$('#settingsDrawer').setAttribute('aria-hidden','false');$('#drawerBackdrop').classList.remove('hidden')}
 function closeDrawer(){$('#settingsDrawer').classList.remove('open');$('#settingsDrawer').setAttribute('aria-hidden','true');$('#drawerBackdrop').classList.add('hidden')}
+function cloudPayload(){
+  return {
+    version:1,
+    updatedAt:Number(localStorage.getItem(STORAGE.cloudUpdated)||Date.now()),
+    profiles,
+    activeProfileId,
+    lang,
+    theme:document.documentElement.classList.contains('dark')?'dark':'light'
+  };
+}
+function validCloudPayload(data){
+  return data&&typeof data==='object'&&data.profiles&&typeof data.profiles==='object'&&Object.keys(data.profiles).length;
+}
+function applyCloudPayload(data){
+  if(!validCloudPayload(data))return false;
+  profiles=data.profiles;
+  activeProfileId=data.activeProfileId&&profiles[data.activeProfileId]?data.activeProfileId:Object.keys(profiles)[0];
+  lang=data.lang||lang;
+  localStorage.setItem(STORAGE.profiles,JSON.stringify(profiles));
+  localStorage.setItem(STORAGE.active,activeProfileId);
+  localStorage.setItem(STORAGE.lang,lang);
+  localStorage.setItem(STORAGE.theme,data.theme==='dark'?'dark':'light');
+  localStorage.setItem(STORAGE.cloudUpdated,String(Number(data.updatedAt)||Date.now()));
+  document.documentElement.classList.toggle('dark',data.theme==='dark');
+  populateProfiles();
+  setLang(lang,{fromCloud:true});
+  updateHome();
+  return true;
+}
+async function saveCloudProgress(showStatus=false){
+  if(!telegramUser||!cloudSyncReady||cloudSyncInProgress)return;
+  cloudSyncInProgress=true;
+  if(showStatus)setTelegramMessage(t('cloudSyncing'));
+  try{
+    const response=await fetch('/api/progress',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile_data:cloudPayload()})});
+    if(!response.ok)throw new Error(await response.text());
+    if(showStatus){setTelegramMessage(t('cloudSynced'));setTimeout(()=>setTelegramMessage(''),1800)}
+  }catch(error){
+    console.error('Cloud save failed',error);
+    setTelegramMessage(t('cloudError'),true);
+  }finally{cloudSyncInProgress=false}
+}
+function queueCloudSync(){
+  if(!telegramUser||!cloudSyncReady)return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer=setTimeout(()=>saveCloudProgress(false),1200);
+}
+async function initializeCloudProgress(user){
+  telegramUser=user;
+  cloudSyncReady=false;
+  try{
+    const response=await fetch('/api/progress',{credentials:'same-origin',cache:'no-store'});
+    if(response.status===404){
+      if(!Number(localStorage.getItem(STORAGE.cloudUpdated)||0))localStorage.setItem(STORAGE.cloudUpdated,String(Date.now()));
+      cloudSyncReady=true;
+      await saveCloudProgress(true);
+      return;
+    }
+    if(!response.ok)throw new Error(await response.text());
+    const remote=await response.json();
+    const remoteData=remote?.profile_data;
+    const localUpdated=Number(localStorage.getItem(STORAGE.cloudUpdated)||0);
+    const remoteUpdated=Number(remoteData?.updatedAt||0);
+    if(validCloudPayload(remoteData)&&remoteUpdated>localUpdated){
+      applyCloudPayload(remoteData);
+      setTelegramMessage(t('cloudLoaded'));
+      setTimeout(()=>setTelegramMessage(''),1800);
+    }
+    cloudSyncReady=true;
+    if(!validCloudPayload(remoteData)||localUpdated>=remoteUpdated)await saveCloudProgress(false);
+  }catch(error){
+    console.error('Cloud initialization failed',error);
+    cloudSyncReady=true;
+    setTelegramMessage(t('cloudError'),true);
+  }
+}
+
 function telegramDisplayName(user){
   return user?.name||user?.preferred_username||user?.username||'Telegram user';
 }
@@ -118,6 +207,7 @@ function signInWithTelegram(){
 async function signOutTelegram(){
   try{
     await fetch('/api/logout',{method:'POST',credentials:'same-origin'});
+    telegramUser=null;cloudSyncReady=false;
     updateTelegramAuthUI(null);
   }catch(error){
     console.error(error);
@@ -132,6 +222,7 @@ async function initTelegramAuth(){
     if(!response.ok){updateTelegramAuthUI(null);return}
     const data=await response.json();
     updateTelegramAuthUI(data.user||null);
+    if(data.user)await initializeCloudProgress(data.user);
     const url=new URL(window.location.href);
     if(url.searchParams.has('telegram_login')){
       url.searchParams.delete('telegram_login');
@@ -143,5 +234,5 @@ async function initTelegramAuth(){
   }
 }
 
-async function init(){if(localStorage.getItem(STORAGE.theme)==='dark')document.documentElement.classList.add('dark');const res=await fetch('questions.json',{cache:'no-store'});questions=await res.json();if(!profiles[activeProfileId])activeProfileId=Object.keys(profiles)[0];const opts=$('#languageSelect').innerHTML;$('#drawerLanguage').innerHTML=opts;populateProfiles();setLang(lang);updateHome();$$('.mode-card[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='all'?openAllChoice():start(b.dataset.mode));$('#startFromFirst').onclick=()=>{closeAllChoice();start('all',null,'first')};$('#startFromLast').onclick=()=>{closeAllChoice();start('all',null,'last')};$('#cancelStartChoice').onclick=closeAllChoice;$('#startChoiceModal').onclick=e=>{if(e.target===$('#startChoiceModal'))closeAllChoice()};$('#searchModeBtn').onclick=()=>{$('#searchPanel').classList.toggle('hidden');$('#searchInput').focus()};$('#searchBtn').onclick=()=>{const n=Number($('#searchInput').value);if(n>=1&&n<=questions.length)start('all',n)};$('#resumeBtn').onclick=()=>start('all',null,'last');$('#themeBtn').onclick=toggleTheme;$('#drawerTheme').onclick=toggleTheme;$('#languageSelect').onchange=e=>setLang(e.target.value);$('#drawerLanguage').onchange=e=>setLang(e.target.value);$('#profileSelect').onchange=e=>switchProfile(e.target.value);$('#drawerProfile').onchange=e=>switchProfile(e.target.value);$('#createProfileBtn').onclick=createProfile;$('#homeBtn').onclick=showHome;$('#drawerHome').onclick=showHome;$('#settingsBtn').onclick=openDrawer;$('#closeDrawer').onclick=closeDrawer;$('#drawerBackdrop').onclick=closeDrawer;$('#prevBtn').onclick=prev;$('#nextBtn').onclick=next;$('#favoriteBtn').onclick=()=>{const s=sets(),id=session[index].id;s.favorites.has(id)?s.favorites.delete(id):s.favorites.add(id);saveSets(s);render()};$('#resetProgress').onclick=resetActiveProgress;$('#homeResetProgress').onclick=resetActiveProgress;$('#zoomBtn').onclick=()=>{$('#modalImage').src=$('#questionImage').src;$('#imageModal').classList.remove('hidden')};$('#closeImage').onclick=()=>$('#imageModal').classList.add('hidden');$('#imageModal').onclick=e=>{if(e.target===$('#imageModal'))$('#imageModal').classList.add('hidden')};$('#closeResult').onclick=closeResult;$('#resultBackBtn').onclick=closeResult;$('#resultHomeBtn').onclick=closeResult;$('#resultRetryBtn').onclick=()=>{ $('#examResultModal').classList.add('hidden'); start('exam') };await initTelegramAuth();document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeAllChoice();$('#imageModal').classList.add('hidden')}})}
+async function init(){if(localStorage.getItem(STORAGE.theme)==='dark')document.documentElement.classList.add('dark');const res=await fetch('questions.json',{cache:'no-store'});questions=await res.json();if(!profiles[activeProfileId])activeProfileId=Object.keys(profiles)[0];const opts=$('#languageSelect').innerHTML;$('#drawerLanguage').innerHTML=opts;populateProfiles();setLang(lang,{fromCloud:true});updateHome();$$('.mode-card[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='all'?openAllChoice():start(b.dataset.mode));$('#startFromFirst').onclick=()=>{closeAllChoice();start('all',null,'first')};$('#startFromLast').onclick=()=>{closeAllChoice();start('all',null,'last')};$('#cancelStartChoice').onclick=closeAllChoice;$('#startChoiceModal').onclick=e=>{if(e.target===$('#startChoiceModal'))closeAllChoice()};$('#searchModeBtn').onclick=()=>{$('#searchPanel').classList.toggle('hidden');$('#searchInput').focus()};$('#searchBtn').onclick=()=>{const n=Number($('#searchInput').value);if(n>=1&&n<=questions.length)start('all',n)};$('#resumeBtn').onclick=()=>start('all',null,'last');$('#themeBtn').onclick=toggleTheme;$('#drawerTheme').onclick=toggleTheme;$('#languageSelect').onchange=e=>setLang(e.target.value);$('#drawerLanguage').onchange=e=>setLang(e.target.value);$('#profileSelect').onchange=e=>switchProfile(e.target.value);$('#drawerProfile').onchange=e=>switchProfile(e.target.value);$('#createProfileBtn').onclick=createProfile;$('#homeBtn').onclick=showHome;$('#drawerHome').onclick=showHome;$('#settingsBtn').onclick=openDrawer;$('#closeDrawer').onclick=closeDrawer;$('#drawerBackdrop').onclick=closeDrawer;$('#prevBtn').onclick=prev;$('#nextBtn').onclick=next;$('#favoriteBtn').onclick=()=>{const s=sets(),id=session[index].id;s.favorites.has(id)?s.favorites.delete(id):s.favorites.add(id);saveSets(s);render()};$('#resetProgress').onclick=resetActiveProgress;$('#homeResetProgress').onclick=resetActiveProgress;$('#zoomBtn').onclick=()=>{$('#modalImage').src=$('#questionImage').src;$('#imageModal').classList.remove('hidden')};$('#closeImage').onclick=()=>$('#imageModal').classList.add('hidden');$('#imageModal').onclick=e=>{if(e.target===$('#imageModal'))$('#imageModal').classList.add('hidden')};$('#closeResult').onclick=closeResult;$('#resultBackBtn').onclick=closeResult;$('#resultHomeBtn').onclick=closeResult;$('#resultRetryBtn').onclick=()=>{ $('#examResultModal').classList.add('hidden'); start('exam') };await initTelegramAuth();document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeAllChoice();$('#imageModal').classList.add('hidden')}})}
 init().catch(err=>{console.error(err);alert('Could not load questions.json')});
