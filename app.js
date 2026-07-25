@@ -5,7 +5,6 @@ const supabaseClient = window.supabase?.createClient(
   SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
-      flowType: 'pkce',
       detectSessionInUrl: true,
       persistSession: true,
       autoRefreshToken: true
@@ -146,28 +145,26 @@ async function signOutTelegram(){
 async function initTelegramAuth(){
   if(!supabaseClient){setTelegramMessage(t('telegramError'),true);return}
 
-  const params=new URLSearchParams(window.location.search);
-  const authCode=params.get('code');
-  if(authCode){
-    setTelegramMessage(baseLang()==='en'?'Completing sign in…':baseLang()==='ru'?'Завершаем вход…':'Завершуємо вхід…');
-    const {error:exchangeError}=await supabaseClient.auth.exchangeCodeForSession(authCode);
-    if(exchangeError){
-      console.error(exchangeError);
-      setTelegramMessage(`${t('telegramError')}: ${exchangeError.message}`,true);
-    }else{
-      params.delete('code');
-      const cleanQuery=params.toString();
-      const cleanUrl=`${window.location.pathname}${cleanQuery?`?${cleanQuery}`:''}${window.location.hash}`;
+  // Register the listener first so the UI updates as soon as Supabase
+  // restores a session from the OAuth callback URL.
+  supabaseClient.auth.onAuthStateChange((_event,currentSession)=>{
+    updateTelegramAuthUI(currentSession);
+    if(currentSession?.user){
+      const cleanUrl=`${window.location.pathname}${window.location.search}`;
       window.history.replaceState({},document.title,cleanUrl);
     }
-  }
+  });
 
   const {data,error}=await supabaseClient.auth.getSession();
-  if(error)console.error(error);
+  if(error){
+    console.error(error);
+    setTelegramMessage(`${t('telegramError')}: ${error.message}`,true);
+  }
   updateTelegramAuthUI(data?.session||null);
-  supabaseClient.auth.onAuthStateChange((_event,session)=>updateTelegramAuthUI(session));
+
   $('#telegramLoginBtn').onclick=signInWithTelegram;
   $('#telegramLogoutBtn').onclick=signOutTelegram;
 }
+
 async function init(){if(localStorage.getItem(STORAGE.theme)==='dark')document.documentElement.classList.add('dark');const res=await fetch('questions.json',{cache:'no-store'});questions=await res.json();if(!profiles[activeProfileId])activeProfileId=Object.keys(profiles)[0];const opts=$('#languageSelect').innerHTML;$('#drawerLanguage').innerHTML=opts;populateProfiles();setLang(lang);updateHome();$$('.mode-card[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='all'?openAllChoice():start(b.dataset.mode));$('#startFromFirst').onclick=()=>{closeAllChoice();start('all',null,'first')};$('#startFromLast').onclick=()=>{closeAllChoice();start('all',null,'last')};$('#cancelStartChoice').onclick=closeAllChoice;$('#startChoiceModal').onclick=e=>{if(e.target===$('#startChoiceModal'))closeAllChoice()};$('#searchModeBtn').onclick=()=>{$('#searchPanel').classList.toggle('hidden');$('#searchInput').focus()};$('#searchBtn').onclick=()=>{const n=Number($('#searchInput').value);if(n>=1&&n<=questions.length)start('all',n)};$('#resumeBtn').onclick=()=>start('all',null,'last');$('#themeBtn').onclick=toggleTheme;$('#drawerTheme').onclick=toggleTheme;$('#languageSelect').onchange=e=>setLang(e.target.value);$('#drawerLanguage').onchange=e=>setLang(e.target.value);$('#profileSelect').onchange=e=>switchProfile(e.target.value);$('#drawerProfile').onchange=e=>switchProfile(e.target.value);$('#createProfileBtn').onclick=createProfile;$('#homeBtn').onclick=showHome;$('#drawerHome').onclick=showHome;$('#settingsBtn').onclick=openDrawer;$('#closeDrawer').onclick=closeDrawer;$('#drawerBackdrop').onclick=closeDrawer;$('#prevBtn').onclick=prev;$('#nextBtn').onclick=next;$('#favoriteBtn').onclick=()=>{const s=sets(),id=session[index].id;s.favorites.has(id)?s.favorites.delete(id):s.favorites.add(id);saveSets(s);render()};$('#resetProgress').onclick=resetActiveProgress;$('#homeResetProgress').onclick=resetActiveProgress;$('#zoomBtn').onclick=()=>{$('#modalImage').src=$('#questionImage').src;$('#imageModal').classList.remove('hidden')};$('#closeImage').onclick=()=>$('#imageModal').classList.add('hidden');$('#imageModal').onclick=e=>{if(e.target===$('#imageModal'))$('#imageModal').classList.add('hidden')};$('#closeResult').onclick=closeResult;$('#resultBackBtn').onclick=closeResult;$('#resultHomeBtn').onclick=closeResult;$('#resultRetryBtn').onclick=()=>{ $('#examResultModal').classList.add('hidden'); start('exam') };await initTelegramAuth();document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeAllChoice();$('#imageModal').classList.add('hidden')}})}
 init().catch(err=>{console.error(err);alert('Could not load questions.json')});
