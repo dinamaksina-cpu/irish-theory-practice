@@ -1,6 +1,17 @@
 const SUPABASE_URL = "https://yhlyclbhmvpmdzjnwjhr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4VLPiMgmHjp_mXOpOpqVCw_feqR1JfN";
-const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabaseClient = window.supabase?.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth: {
+      flowType: 'pkce',
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  }
+);
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -134,6 +145,23 @@ async function signOutTelegram(){
 }
 async function initTelegramAuth(){
   if(!supabaseClient){setTelegramMessage(t('telegramError'),true);return}
+
+  const params=new URLSearchParams(window.location.search);
+  const authCode=params.get('code');
+  if(authCode){
+    setTelegramMessage(baseLang()==='en'?'Completing sign in…':baseLang()==='ru'?'Завершаем вход…':'Завершуємо вхід…');
+    const {error:exchangeError}=await supabaseClient.auth.exchangeCodeForSession(authCode);
+    if(exchangeError){
+      console.error(exchangeError);
+      setTelegramMessage(`${t('telegramError')}: ${exchangeError.message}`,true);
+    }else{
+      params.delete('code');
+      const cleanQuery=params.toString();
+      const cleanUrl=`${window.location.pathname}${cleanQuery?`?${cleanQuery}`:''}${window.location.hash}`;
+      window.history.replaceState({},document.title,cleanUrl);
+    }
+  }
+
   const {data,error}=await supabaseClient.auth.getSession();
   if(error)console.error(error);
   updateTelegramAuthUI(data?.session||null);
