@@ -100,20 +100,30 @@
         </article>
 
         <div class="practice-metrics-grid" data-premium-section>
-          <article class="card metric-card metric-correct"><span class="metric-icon">✓</span><div><strong id="statCorrect">0</strong><span data-i18n="correctAnswers">Правильних</span></div><small id="correctShare">0%</small></article>
-          <article class="card metric-card metric-errors"><span class="metric-icon">×</span><div><strong id="statMistakes">0</strong><span data-i18n="errors">Помилок</span></div><small id="mistakeShare">0%</small></article>
-          <article class="card metric-card metric-bookmarks"><span class="metric-icon"><svg><use href="#i-bookmark"/></svg></span><div><strong id="statBookmarks">0</strong><span data-i18n="favorites">Закладки</span></div><small id="bookmarkHint">Saved</small></article>
+          <article class="card metric-card metric-correct"><span class="metric-icon">✓</span><div><strong id="statCorrect">0</strong><span data-i18n="correctAnswers">Правильних</span></div></article>
+          <article class="card metric-card metric-errors"><span class="metric-icon">×</span><div><strong id="statMistakes">0</strong><span data-i18n="errors">Помилок</span></div></article>
+          <article class="card metric-card metric-bookmarks"><span class="metric-icon"><svg><use href="#i-bookmark"/></svg></span><div><strong id="statBookmarks">0</strong><span id="bookmarksLabel">Збережені питання</span></div></article>
         </div>
+
+        <article class="card today-card" data-premium-section>
+          <div class="today-head"><div><span class="stats-kicker">TODAY</span><h3 id="todayTitle">Сьогодні</h3></div><span id="motivationText" class="motivation-text">Чудовий початок!</span></div>
+          <div class="today-grid">
+            <div><span id="todayQuestionsLabel">Питань</span><strong id="todayQuestions">0</strong></div>
+            <div><span id="todayCorrectLabel">Правильних</span><strong id="todayCorrect">0</strong></div>
+            <div><span id="todayAccuracyLabel">Точність</span><strong id="todayAccuracy">0%</strong></div>
+            <div><span id="todayTimeLabel">Час навчання</span><strong id="todayTime">0 хв</strong></div>
+          </div>
+        </article>
 
         <article class="card exam-insights-card" data-premium-section>
           <div class="exam-insights-head">
             <div><span class="stats-kicker">OFFICIAL FORMAT</span><h3 data-i18n="exams">Іспити</h3></div>
-            <div id="examReadiness" class="readiness-badge">Почніть перший іспит</div>
+            <button id="examReadiness" class="readiness-badge" type="button">Продовжити практику</button>
           </div>
           <div class="exam-insights-grid">
-            <div><span class="exam-label" data-i18n="examsTaken">Складено іспитів</span><strong id="examCount">0</strong><small id="examPassedText">0 складено</small></div>
-            <div><span class="exam-label" data-i18n="averageResult">Середній результат</span><strong id="examAverage">—</strong><small>35/40 to pass</small></div>
-            <div><span class="exam-label" data-i18n="bestResult">Найкращий результат</span><strong id="examBest">—</strong><small id="examLatest">Останній: —</small></div>
+            <div><span class="exam-label" data-i18n="examsTaken">Складено іспитів</span><strong id="examCount">0</strong></div>
+            <div><span class="exam-label" data-i18n="averageResult">Середній результат</span><strong id="examAverage">—</strong></div>
+            <div><span class="exam-label" data-i18n="bestResult">Найкращий результат</span><strong id="examBest">—</strong></div>
           </div>
           <div class="exam-history-wrap">
             <div class="history-title"><span>Останні результати</span><small id="historyCaption">До 7 спроб</small></div>
