@@ -281,3 +281,38 @@ body.modal-open{overflow:hidden;touch-action:none}
   .hero-progress-ring strong{font-size:25px}
   .hero-progress-ring span{font-size:10px}
 }
+
+/* v3.3 restore compact Continue button */
+@media (max-width:720px){
+  .premium-hero{
+    min-height:278px;
+  }
+  .hero-copy p{
+    display:none !important;
+  }
+  .hero-continue-btn{
+    display:flex !important;
+    width:180px;
+    min-width:0;
+    height:44px;
+    margin-top:15px;
+    padding:0 18px;
+    border-radius:14px;
+    font-size:15px;
+    gap:8px;
+    box-shadow:0 9px 20px rgba(0,45,22,.16);
+  }
+  .hero-continue-btn span{font-size:13px}
+}
+
+@media (max-width:390px){
+  .premium-hero{
+    min-height:258px;
+  }
+  .hero-continue-btn{
+    width:164px;
+    height:42px;
+    margin-top:13px;
+    font-size:14px;
+  }
+}
