@@ -32,14 +32,17 @@
         <button id="themeBtn" class="round-btn" type="button" aria-label="Theme"><svg><use href="#i-moon"/></svg></button>
       </header>
 
-      <section class="hero card">
+      <section class="hero card premium-hero">
         <div class="hero-copy">
-          <div class="eyebrow">LEARN • PRACTICE • PASS</div>
-          <h1>Irish Driving<br />Theory Test</h1>
-          <p>Підготовка до теоретичного іспиту в Ірландії</p>
+          <div class="eyebrow">CONTINUE LEARNING</div>
+          <h1 id="heroTitle">Продовжуйте навчання</h1>
+          <p id="heroSubtitle">Ви чудово справляєтесь — продовжуйте!</p>
+          <div class="hero-question-line"><span id="heroQuestionLabel">Питання</span><strong id="heroQuestionCount">1</strong><small>/ <span id="totalCount">801</span></small></div>
+          <div class="hero-progress-track"><div id="heroProgressBar"></div></div>
+          <button id="heroContinueBtn" class="hero-continue-btn" type="button"><span>▶</span><b id="heroContinueText">Продовжити</b></button>
         </div>
-        <div class="question-count"><strong id="totalCount">801</strong><span data-i18n="questions">питань</span></div>
-        <span class="hero-orb orb-one"></span><span class="hero-orb orb-two"></span>
+        <div class="hero-progress-ring"><div><strong id="heroProgressPercent">0%</strong><span id="heroProgressLabel">Прогрес</span></div></div>
+        <div class="hero-road" aria-hidden="true"><span></span><i></i><b></b></div>
       </section>
 
       <section class="home-control-grid">
@@ -72,7 +75,7 @@
         <button id="resumeBtn" type="button"><span data-i18n="open">Відкрити</span><b>→</b></button>
       </section>
 
-      <div class="section-heading"><div><span>TRAINING</span><h2>Оберіть режим</h2></div></div>
+      <div class="section-heading premium-section-heading"><div><span>QUICK ACCESS</span><h2 id="quickAccessTitle">Швидкий доступ</h2></div></div>
       <section class="mode-grid">
         <button class="mode-card featured" data-mode="all"><span class="mode-icon green"><svg><use href="#i-book"/></svg></span><span class="mode-content"><b data-i18n="allQuestions">Усі питання</b><small id="allProgress">0 / 60</small><em id="allAccessHint" class="access-hint">Перші 60 питань</em></span><i>→</i></button>
         <button class="mode-card featured" data-mode="exam"><span class="mode-icon blue"><svg><use href="#i-clipboard"/></svg></span><span class="mode-content"><b data-i18n="officialExam">40 — пробний іспит</b><small>45 min · 35/40</small><em id="examAccessHint" class="access-hint">Демо-іспитів залишилось: 3</em></span><i>→</i></button>
@@ -164,6 +167,15 @@
 
   <div id="examResumeModal" class="choice-modal hidden"><div class="choice-card card"><h2 id="examResumeTitle">Незавершений іспит</h2><p id="examResumeText">Пройдено 0 із 40 питань.</p><button id="resumeExamBtn" type="button" class="choice-primary">Продовжити іспит</button><button id="newExamBtn" type="button" class="choice-secondary">Почати новий</button><button id="cancelExamChoice" type="button" class="choice-cancel">Скасувати</button></div></div>
   <div id="examExitModal" class="choice-modal hidden"><div class="choice-card card"><h2 id="examExitTitle">Вийти з іспиту?</h2><p id="examExitText">Ваші відповіді та поточне питання буде збережено.</p><button id="stayExamBtn" type="button" class="choice-primary">Залишитися</button><button id="leaveExamBtn" type="button" class="choice-secondary danger-choice">Вийти й зберегти</button></div></div>
+  <div id="examIntroModal" class="choice-modal hidden"><div class="choice-card card exam-intro-card">
+    <div class="exam-intro-icon"><svg><use href="#i-clipboard"/></svg></div>
+    <span class="exam-intro-kicker">OFFICIAL FORMAT</span>
+    <h2 id="examIntroTitle">Офіційний іспит</h2>
+    <p id="examIntroLead">Цей режим імітує справжній Irish Driving Theory Test.</p>
+    <div class="exam-intro-metrics"><div><strong>40</strong><span id="examIntroQuestions">питань</span></div><div><strong>45</strong><span id="examIntroMinutes">хвилин</span></div><div><strong>35/40</strong><span id="examIntroPass">для проходження</span></div></div>
+    <ul id="examIntroList"><li>Можна позначати питання для перегляду.</li><li>Після завершення часу іспит закінчиться автоматично.</li><li>Незавершений іспит зберігається.</li></ul>
+    <button id="beginExamBtn" type="button" class="choice-primary">Почати іспит</button><button id="cancelExamIntro" type="button" class="choice-cancel">Скасувати</button>
+  </div></div>
   <div id="examResultModal" class="result-modal hidden">
     <div class="result-card card">
       <div class="result-topbar">
@@ -178,9 +190,9 @@
         </div>
       </div>
       <div class="result-summary">
-        <div class="result-stat score"><span class="result-stat-icon">✓</span><strong id="resultScore">0/40</strong><span id="resultScoreLabel">Правильні відповіді</span><small id="resultScorePercent">0%</small></div>
-        <div class="result-stat time"><span class="result-stat-icon">◷</span><strong id="resultTime">00:00</strong><span id="resultTimeLabel">Час проходження</span></div>
-        <div class="result-stat mistakes"><span class="result-stat-icon">×</span><strong id="resultMistakeCount">0</strong><span id="resultMistakeLabel">Помилок</span><small id="resultMistakePercent">0%</small></div>
+        <div class="result-stat score"><span class="result-stat-icon"><svg viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></svg></span><strong id="resultScore">0/40</strong><span id="resultScoreLabel">Правильні відповіді</span><small id="resultScorePercent">0%</small></div>
+        <div class="result-stat time"><span class="result-stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg></span><strong id="resultTime">00:00</strong><span id="resultTimeLabel">Час проходження</span></div>
+        <div class="result-stat mistakes"><span class="result-stat-icon"><svg viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></svg></span><strong id="resultMistakeCount">0</strong><span id="resultMistakeLabel">Помилок</span><small id="resultMistakePercent">0%</small></div>
       </div>
       <h3 id="mistakesTitle">Питання з помилками</h3>
       <div id="examMistakesList" class="exam-mistakes-list"></div>
