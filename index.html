@@ -82,8 +82,12 @@
         <button class="mode-card" data-mode="random10"><span class="mode-icon cyan"><svg><use href="#i-dice"/></svg></span><span class="mode-content"><b data-i18n="random10">10 випадкових питань</b><small data-i18n="random10Hint">Швидка практика</small><em data-i18n="start">Почати</em></span><i>→</i></button>
       </section>
 
-      <button id="searchModeBtn" class="card search-tool-card" type="button"><span class="mode-icon cyan"><svg><use href="#i-search"/></svg></span><span><b data-i18n="searchNumber">Пошук за номером</b><small data-i18n="openQuestion">Відкрити конкретне питання</small></span><i>→</i></button>
-      <section id="searchPanel" class="card tools-card hidden"><label><span data-i18n="searchNumber">Пошук за номером</span><div class="inline-control"><input id="searchInput" inputmode="numeric" type="number" min="1" max="801" placeholder="701" /><button id="searchBtn" type="button" data-i18n="open">Відкрити</button></div></label></section>
+      <form id="searchForm" class="card search-tool-card search-inline-card">
+        <span class="mode-icon cyan"><svg><use href="#i-search"/></svg></span>
+        <span class="search-inline-copy"><b data-i18n="searchNumber">Пошук за номером</b><small data-i18n="openQuestion">Відкрити конкретне питання</small></span>
+        <input id="searchInput" inputmode="numeric" type="number" min="1" max="801" placeholder="1–801" aria-label="Question number" />
+        <button id="searchBtn" type="submit" aria-label="Open question">→</button>
+      </form>
 
       <div class="section-heading stats-heading"><div><span>INSIGHTS</span><h2 data-i18n="statistics">Статистика</h2></div><span class="stats-profile-chip" id="statsProfileName">Dina</span></div>
       <section class="statistics-dashboard">
@@ -157,6 +161,9 @@
   <aside id="settingsDrawer" class="drawer" aria-hidden="true"><div class="drawer-head"><h2 data-i18n="settings">Налаштування</h2><button id="closeDrawer" class="icon-btn" type="button">×</button></div><label><span data-i18n="profile">Профіль</span><select id="drawerProfile"></select></label><label><span data-i18n="language">Мова</span><select id="drawerLanguage"></select></label><button id="drawerTheme" class="drawer-button" type="button"><svg><use href="#i-moon"/></svg><span data-i18n="theme">Тема</span></button><button id="resetProgress" class="drawer-button danger" type="button"><svg><use href="#i-reset"/></svg><span data-i18n="resetProgress">Скинути прогрес</span></button><button id="drawerHome" class="drawer-button" type="button" data-i18n="home">На головну</button></aside>
   <div id="imageModal" class="image-modal hidden"><button id="closeImage" type="button">×</button><img id="modalImage" alt="Expanded question illustration" /></div>
   <div id="startChoiceModal" class="choice-modal hidden"><div class="choice-card card"><h2 id="startChoiceTitle">Усі питання</h2><p id="startChoiceText">Звідки почати?</p><button id="startFromFirst" type="button" class="choice-primary">З першого питання</button><button id="startFromLast" type="button" class="choice-secondary">Продовжити з останнього</button><button id="cancelStartChoice" type="button" class="choice-cancel">Скасувати</button></div></div>
+
+  <div id="examResumeModal" class="choice-modal hidden"><div class="choice-card card"><h2 id="examResumeTitle">Незавершений іспит</h2><p id="examResumeText">Пройдено 0 із 40 питань.</p><button id="resumeExamBtn" type="button" class="choice-primary">Продовжити іспит</button><button id="newExamBtn" type="button" class="choice-secondary">Почати новий</button><button id="cancelExamChoice" type="button" class="choice-cancel">Скасувати</button></div></div>
+  <div id="examExitModal" class="choice-modal hidden"><div class="choice-card card"><h2 id="examExitTitle">Вийти з іспиту?</h2><p id="examExitText">Ваші відповіді та поточне питання буде збережено.</p><button id="stayExamBtn" type="button" class="choice-primary">Залишитися</button><button id="leaveExamBtn" type="button" class="choice-secondary danger-choice">Вийти й зберегти</button></div></div>
   <div id="examResultModal" class="result-modal hidden">
     <div class="result-card card">
       <div class="result-topbar">
