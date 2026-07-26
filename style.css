@@ -136,3 +136,23 @@ body.dark .progress-overview-card{background:linear-gradient(125deg,var(--surfac
 .modern-reset{background:transparent;box-shadow:none;border-color:#f4caca;padding:12px 14px}.modern-reset .reset-icon{width:39px;height:39px}.modern-reset>span:nth-child(2) b{font-size:14px}.modern-reset>span:nth-child(2) small{font-size:9px}.modern-reset i{font-size:20px}
 @media(max-width:760px){.today-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:500px){.metric-card{grid-template-columns:auto 1fr}.today-card{padding:17px}.today-head{align-items:center}.motivation-text{max-width:145px;font-size:10px}.today-grid{gap:8px}.today-grid>div{padding:13px}.today-grid strong{font-size:21px}.readiness-badge.continue-practice{max-width:150px}.exam-insights-grid>div{grid-template-columns:1fr auto}.modern-reset>span:nth-child(2) small{max-width:205px}}
+
+/* v2.7 profile and training polish */
+.profile-main{position:relative;padding-right:4px}
+.profile-plan{display:inline-flex;margin-top:7px;padding:4px 9px;border-radius:999px;background:#fff3c9;color:#9a6800;font-size:9px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;border:1px solid #efcf69}
+.profile-main small{margin-top:7px}
+.telegram-user-info{min-height:52px}
+.telegram-status-copy{display:flex;align-items:center;gap:9px}
+.telegram-status-copy small{font-size:12px;font-weight:850;color:var(--ink)}
+.telegram-status-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px var(--green-soft);flex:0 0 auto}
+.mode-card{display:flex;flex-direction:column;align-items:flex-start;position:relative;min-width:0}
+.mode-card .mode-content{display:flex;flex:1;min-width:0;width:100%;flex-direction:column;align-items:flex-start;justify-content:flex-end}
+.mode-card b{min-height:40px;display:flex;align-items:flex-end}
+.mode-card small{min-height:32px}
+.mode-card em{margin-top:auto;padding-top:8px;color:var(--green);font-size:11px;font-style:normal;font-weight:850}
+.mode-card>i{position:absolute;right:17px;top:20px}
+.search-tool-card{width:100%;margin-top:14px;padding:18px 20px;border:1px solid var(--line);display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;text-align:left;color:var(--ink);cursor:pointer}
+.search-tool-card b{display:block;font-size:17px}.search-tool-card small{display:block;margin-top:5px;color:var(--muted)}.search-tool-card>i{font-style:normal;font-size:24px;color:var(--muted)}
+.dark .profile-plan{background:#3b311b;color:#f4d87a;border-color:#6d5722}
+.dark .search-tool-card{background:rgba(15,34,27,.94)}
+@media(max-width:430px){.mode-card b{min-height:36px;font-size:15px}.mode-card small{min-height:30px}.search-tool-card{padding:16px}.search-tool-card b{font-size:16px}}
