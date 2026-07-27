@@ -1,6 +1,6 @@
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const STORAGE = {lang:'dtt_lang',theme:'dtt_theme',profiles:'dtt_profiles_v31',active:'dtt_active_profile_v31',cloudUpdated:'dtt_cloud_updated_v1'};
+const STORAGE = {lang:'dtt_lang',theme:'dtt_theme',profiles:'dtt_profiles_v31',active:'dtt_active_profile_v31',cloudUpdated:'dtt_cloud_updated_v1',backup:'dtt_profiles_backup_v1'};
 let questions=[], session=[], index=0, mode='all', selected=null, checkedAnswer=null, examAnswers=[];
 let examSeconds=45*60, examStartedAt=0, examTimerId=null;
 let lang=localStorage.getItem(STORAGE.lang)||'ua';
@@ -143,11 +143,33 @@ function cloudPayload(){
     theme:document.documentElement.classList.contains('dark')?'dark':'light'
   };
 }
+
+function profileDataCount(data){
+  if(!data||typeof data!=='object'||!data.profiles||typeof data.profiles!=='object')return 0;
+  return Object.values(data.profiles).reduce((sum,p)=>sum+(Array.isArray(p?.answered)?p.answered.length:0)+(Array.isArray(p?.correct)?p.correct.length:0)+(Array.isArray(p?.mistakes)?p.mistakes.length:0)+(Array.isArray(p?.favorites)?p.favorites.length:0)+(Array.isArray(p?.examScores)?p.examScores.length:0),0);
+}
+function backupLocalProgress(){
+  try{
+    const current=localStorage.getItem(STORAGE.profiles);
+    if(current&&current!=='{}')localStorage.setItem(STORAGE.backup,current);
+  }catch(error){console.warn('Could not back up local progress',error)}
+}
+async function waitForTelegramInitData(timeoutMs=8000){
+  const started=Date.now();
+  while(Date.now()-started<timeoutMs){
+    const tg=window.Telegram?.WebApp;
+    if(tg?.initData)return tg.initData;
+    await new Promise(resolve=>setTimeout(resolve,200));
+  }
+  return '';
+}
+
 function validCloudPayload(data){
   return data&&typeof data==='object'&&data.profiles&&typeof data.profiles==='object'&&Object.keys(data.profiles).length;
 }
 function applyCloudPayload(data){
   if(!validCloudPayload(data))return false;
+  backupLocalProgress();
   profiles=data.profiles;
   activeProfileId=data.activeProfileId&&profiles[data.activeProfileId]?data.activeProfileId:Object.keys(profiles)[0];
   lang=data.lang||lang;
@@ -194,15 +216,25 @@ async function initializeCloudProgress(user){
     if(!response.ok)throw new Error(await response.text());
     const remote=await response.json();
     const remoteData=remote?.profile_data;
+    const localData=cloudPayload();
+    const localCount=profileDataCount(localData);
+    const remoteCount=profileDataCount(remoteData);
     const localUpdated=Number(localStorage.getItem(STORAGE.cloudUpdated)||0);
     const remoteUpdated=Number(remoteData?.updatedAt||0);
-    if(validCloudPayload(remoteData)&&remoteUpdated>localUpdated){
+
+    // Never replace real local progress with an empty cloud record.
+    if(remoteCount>0&&localCount===0){
+      applyCloudPayload(remoteData);
+      setTelegramMessage(t('cloudLoaded'));
+      setTimeout(()=>setTelegramMessage(''),1800);
+    }else if(remoteCount>0&&localCount>0&&remoteUpdated>localUpdated){
+      backupLocalProgress();
       applyCloudPayload(remoteData);
       setTelegramMessage(t('cloudLoaded'));
       setTimeout(()=>setTelegramMessage(''),1800);
     }
     cloudSyncReady=true;
-    if(!validCloudPayload(remoteData)||localUpdated>=remoteUpdated)await saveCloudProgress(false);
+    if(localCount>0&&(remoteCount===0||localUpdated>=remoteUpdated))await saveCloudProgress(false);
   }catch(error){
     console.error('Cloud initialization failed',error);
     cloudSyncReady=true;
@@ -227,46 +259,20 @@ function updateTelegramAuthUI(user){
   
   if(loggedIn)setTelegramMessage('');
 }
-async function waitForTelegramInitData(timeoutMs=8000){
-  const started=Date.now();
-  while(Date.now()-started<timeoutMs){
-    const tg=window.Telegram?.WebApp;
-    if(tg?.initData)return tg;
-    await new Promise(resolve=>setTimeout(resolve,150));
-  }
-  return window.Telegram?.WebApp||null;
-}
-function telegramLaunchDiagnostics(){
-  const tg=window.Telegram?.WebApp;
-  const params=new URLSearchParams(window.location.search);
-  return {
-    sdk:Boolean(tg),
-    initDataLength:tg?.initData?.length||0,
-    platform:tg?.platform||params.get('tgWebAppPlatform')||'',
-    version:tg?.version||params.get('tgWebAppVersion')||'',
-    hasUnsafeUser:Boolean(tg?.initDataUnsafe?.user),
-    href:window.location.href
-  };
-}
 async function loginFromTelegramMiniApp(){
-  const tg=await waitForTelegramInitData();
-  const initData=tg?.initData||'';
-  if(!initData){
-    console.error('Telegram initData missing',telegramLaunchDiagnostics());
-    throw new Error('Telegram не передав дані Mini App. Відкрийте застосунок лише через кнопку «Відкрити застосунок» у боті.');
-  }
+  const tg=window.Telegram?.WebApp;
+  const initData=await waitForTelegramInitData();
+  if(!initData)throw new Error('Telegram Mini App initData is unavailable');
   tg.ready();
   tg.expand();
   const response=await fetch('/api/telegram-miniapp-login',{
     method:'POST',
     credentials:'same-origin',
-    cache:'no-store',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({initData})
   });
-  const payload=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(payload.error||'Telegram login failed');
-  return payload;
+  if(!response.ok)throw new Error(await response.text());
+  return response.json();
 }
 async function loadTelegramAccount(){
   const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
@@ -283,12 +289,18 @@ async function loadTelegramAccount(){
 async function signInWithTelegram(){
   setTelegramMessage(t('telegramSigningIn'));
   try{
-    await loginFromTelegramMiniApp();
-    await loadTelegramAccount();
-    setTelegramMessage('');
+    const initData=await waitForTelegramInitData(2500);
+    if(initData){
+      await loginFromTelegramMiniApp();
+      await loadTelegramAccount();
+      setTelegramMessage('');
+      return;
+    }
+    // Safe fallback for browser or Telegram clients that did not provide initData.
+    window.location.assign('/api/telegram-login');
   }catch(error){
     console.error('Telegram sign-in failed:',error);
-    setTelegramMessage(error.message||t('telegramError'),true);
+    setTelegramMessage(t('telegramError'),true);
   }
 }
 async function signOutTelegram(){
@@ -311,20 +323,15 @@ async function initTelegramAuth(){
 
     let response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
     if(response.status===401){
-      setTelegramMessage(t('telegramSigningIn'));
-      try{
+      const initData=await waitForTelegramInitData(5000);
+      if(initData){
+        setTelegramMessage(t('telegramSigningIn'));
         await loginFromTelegramMiniApp();
         response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-      }catch(loginError){
-        console.error('Automatic Telegram Mini App login failed:',loginError);
-        updateTelegramAuthUI(null);
-        setTelegramMessage(loginError.message||t('telegramError'),true);
-        return;
       }
     }
     if(!response.ok){
       updateTelegramAuthUI(null);
-      setTelegramMessage(t('telegramError'),true);
       return;
     }
     const data=await response.json();
@@ -344,9 +351,10 @@ async function initTelegramAuth(){
   }catch(error){
     console.error('Telegram auth initialization failed:',error);
     updateTelegramAuthUI(null);
-    setTelegramMessage(error.message||t('telegramError'),true);
+    setTelegramMessage(t('telegramError'),true);
   }
 }
+
 
 let imageViewerScale=1,imageViewerX=0,imageViewerY=0,imageViewerStartDistance=0,imageViewerStartScale=1,imageViewerDragging=false,imageViewerStartX=0,imageViewerStartY=0,imageViewerBaseX=0,imageViewerBaseY=0,imageViewerLastTap=0;
 function applyImageViewerTransform(){const img=$('#modalImage');if(!img)return;img.style.transform=`translate3d(${imageViewerX}px,${imageViewerY}px,0) scale(${imageViewerScale})`;img.classList.toggle('is-zoomed',imageViewerScale>1.01)}
