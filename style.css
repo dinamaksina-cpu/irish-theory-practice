@@ -320,3 +320,11 @@ body.modal-open{overflow:hidden;touch-action:none}
 .telegram-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;flex:0 0 42px;background:var(--line)}
 .telegram-user-copy{flex:1;min-width:0}
 .telegram-user-meta{display:block;margin-top:2px;color:var(--muted);font-size:10px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Telegram profile identity */
+.telegram-user-info{display:flex;align-items:center;gap:10px;min-width:0}
+.telegram-user-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:0 0 44px;background:rgba(255,255,255,.08)}
+.telegram-user-copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.telegram-user-copy b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.telegram-connected-row{display:flex;align-items:center;gap:6px;min-width:0}
+.telegram-connected-row small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

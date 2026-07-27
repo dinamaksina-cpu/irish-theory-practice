@@ -254,10 +254,35 @@ function setTelegramMessage(text='',isError=false){
 }
 function updateTelegramAuthUI(user){
   const loggedIn=Boolean(user?.id);
-  $('#telegramLoginBtn')?.classList.toggle('hidden',loggedIn);
-  $('#telegramUserInfo')?.classList.toggle('hidden',!loggedIn);
-  
-  if(loggedIn)setTelegramMessage('');
+  const loginBtn=$('#telegramLoginBtn');
+  const userInfo=$('#telegramUserInfo');
+  const nameEl=$('#telegramUserName');
+  const avatarEl=$('#telegramUserAvatar');
+
+  loginBtn?.classList.toggle('hidden',loggedIn);
+  userInfo?.classList.toggle('hidden',!loggedIn);
+
+  if(loggedIn){
+    if(nameEl)nameEl.textContent=telegramDisplayName(user);
+
+    const photo=user?.photo_url||user?.picture||'';
+    if(avatarEl){
+      if(photo){
+        avatarEl.src=photo;
+        avatarEl.classList.remove('hidden');
+      }else{
+        avatarEl.removeAttribute('src');
+        avatarEl.classList.add('hidden');
+      }
+    }
+    setTelegramMessage('');
+  }else{
+    if(nameEl)nameEl.textContent='';
+    if(avatarEl){
+      avatarEl.removeAttribute('src');
+      avatarEl.classList.add('hidden');
+    }
+  }
 }
 async function loginFromTelegramMiniApp(){
   const tg=window.Telegram?.WebApp;

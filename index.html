@@ -55,9 +55,13 @@
               <span data-i18n="telegramLogin">Увійти через Telegram</span>
             </button>
             <div id="telegramUserInfo" class="telegram-user-info hidden">
-              <div class="telegram-user-copy telegram-status-copy">
-                <span class="telegram-status-dot" aria-hidden="true"></span>
-                <small data-i18n="telegramConnected">Telegram підключено</small>
+              <img id="telegramUserAvatar" class="telegram-user-avatar hidden" src="" alt="Telegram avatar">
+              <div class="telegram-user-copy">
+                <b id="telegramUserName">Telegram user</b>
+                <span class="telegram-connected-row">
+                  <span class="telegram-status-dot" aria-hidden="true"></span>
+                  <small data-i18n="telegramConnected">Telegram підключено</small>
+                </span>
               </div>
               <button id="telegramLogoutBtn" class="telegram-logout-btn" type="button" data-i18n="logout">Вийти</button>
             </div>
