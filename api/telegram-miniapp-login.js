@@ -45,6 +45,7 @@ module.exports = async function handler(req, res) {
       picture: telegramUser.photo_url || '',
       photo_url: telegramUser.photo_url || '',
       language_code: telegramUser.language_code || '',
+      telegram_premium: Boolean(telegramUser.is_premium),
       is_premium: Boolean(telegramUser.is_premium)
     };
     res.setHeader('Set-Cookie', cookie('dtt_session', createSession(user), { maxAge: 60 * 60 * 24 * 30 }));

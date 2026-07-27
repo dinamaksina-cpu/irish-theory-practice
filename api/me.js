@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
     const access = rows[0] || {};
     return res.status(200).json({
       user,
-      telegram_premium: user.telegram_premium === true,
+      telegram_premium: Boolean(user.telegram_premium || user.is_premium),
       is_premium: Boolean(access.is_premium),
       demo_exam_attempts: Number(access.demo_exam_attempts || 0)
     });
