@@ -30,12 +30,18 @@ module.exports = async function handler(req, res) {
     const tokens = await tokenResponse.json();
     if (!tokenResponse.ok || !tokens.id_token) throw new Error(tokens.error_description || tokens.error || 'Telegram token exchange failed');
     const claims = await verifyTelegramIdToken(tokens.id_token, nonce);
+    if (!claims.id) throw new Error('Telegram user ID is missing from ID token');
+    const telegramId = String(claims.id);
     const user = {
-      id: String(claims.sub || claims.id),
-      telegram_id: claims.id || claims.sub,
+      id: telegramId,
+      telegram_id: telegramId,
+      oidc_sub: claims.sub ? String(claims.sub) : '',
       name: claims.name || claims.given_name || claims.preferred_username || 'Telegram user',
       preferred_username: claims.preferred_username || '',
-      picture: claims.picture || ''
+      username: claims.preferred_username || '',
+      picture: claims.picture || '',
+      photo_url: claims.picture || '',
+      telegram_premium: claims.is_premium === true
     };
     res.setHeader('Set-Cookie', [
       cookie('dtt_session', createSession(user), { maxAge: 60 * 60 * 24 * 30 }),
