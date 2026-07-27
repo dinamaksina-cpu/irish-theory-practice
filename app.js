@@ -227,29 +227,36 @@ function updateTelegramAuthUI(user){
   
   if(loggedIn)setTelegramMessage('');
 }
-function telegramWebApp(){
-  return window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-}
-function isTelegramMiniAppContext(){
-  const tg=telegramWebApp();
-  return Boolean(tg && tg.platform && tg.platform !== 'unknown');
-}
-async function waitForTelegramInitData(timeoutMs=5000){
+async function waitForTelegramInitData(timeoutMs=8000){
   const started=Date.now();
   while(Date.now()-started<timeoutMs){
-    const tg=telegramWebApp();
-    if(tg?.initData)return tg.initData;
+    const tg=window.Telegram?.WebApp;
+    if(tg?.initData)return tg;
     await new Promise(resolve=>setTimeout(resolve,150));
   }
-  return '';
+  return window.Telegram?.WebApp||null;
+}
+function telegramLaunchDiagnostics(){
+  const tg=window.Telegram?.WebApp;
+  const params=new URLSearchParams(window.location.search);
+  return {
+    sdk:Boolean(tg),
+    initDataLength:tg?.initData?.length||0,
+    platform:tg?.platform||params.get('tgWebAppPlatform')||'',
+    version:tg?.version||params.get('tgWebAppVersion')||'',
+    hasUnsafeUser:Boolean(tg?.initDataUnsafe?.user),
+    href:window.location.href
+  };
 }
 async function loginFromTelegramMiniApp(){
-  const tg=telegramWebApp();
-  if(!tg)throw new Error('Telegram WebApp SDK is unavailable');
+  const tg=await waitForTelegramInitData();
+  const initData=tg?.initData||'';
+  if(!initData){
+    console.error('Telegram initData missing',telegramLaunchDiagnostics());
+    throw new Error('Telegram не передав дані Mini App. Відкрийте застосунок лише через кнопку «Відкрити застосунок» у боті.');
+  }
   tg.ready();
   tg.expand();
-  const initData=await waitForTelegramInitData();
-  if(!initData)throw new Error('Telegram did not provide Mini App initData');
   const response=await fetch('/api/telegram-miniapp-login',{
     method:'POST',
     credentials:'same-origin',
@@ -257,14 +264,14 @@ async function loginFromTelegramMiniApp(){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({initData})
   });
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(data.error||`Telegram login failed (${response.status})`);
-  return data;
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(payload.error||'Telegram login failed');
+  return payload;
 }
 async function loadTelegramAccount(){
   const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(data.error||`Could not load account (${response.status})`);
+  if(!response.ok)throw new Error(await response.text());
+  const data=await response.json();
   telegramUser=data.user||null;
   isPremium=Boolean(data.is_premium);
   demoExamAttempts=Number(data.demo_exam_attempts||0);
@@ -276,17 +283,12 @@ async function loadTelegramAccount(){
 async function signInWithTelegram(){
   setTelegramMessage(t('telegramSigningIn'));
   try{
-    if(isTelegramMiniAppContext()){
-      await loginFromTelegramMiniApp();
-      await loadTelegramAccount();
-      setTelegramMessage('');
-      return;
-    }
-    // OAuth is allowed only in a normal browser, never inside Telegram Mini App.
-    window.location.assign('/api/telegram-login');
+    await loginFromTelegramMiniApp();
+    await loadTelegramAccount();
+    setTelegramMessage('');
   }catch(error){
     console.error('Telegram sign-in failed:',error);
-    setTelegramMessage(`${t('telegramError')}: ${error.message}`,true);
+    setTelegramMessage(error.message||t('telegramError'),true);
   }
 }
 async function signOutTelegram(){
@@ -303,21 +305,26 @@ async function initTelegramAuth(){
   $('#telegramLoginBtn').onclick=signInWithTelegram;
   $('#telegramLogoutBtn').onclick=signOutTelegram;
   try{
-    const tg=telegramWebApp();
+    const tg=window.Telegram?.WebApp;
     tg?.ready();
     tg?.expand();
 
     let response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-    if(response.status===401&&isTelegramMiniAppContext()){
+    if(response.status===401){
       setTelegramMessage(t('telegramSigningIn'));
-      await loginFromTelegramMiniApp();
-      response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+      try{
+        await loginFromTelegramMiniApp();
+        response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+      }catch(loginError){
+        console.error('Automatic Telegram Mini App login failed:',loginError);
+        updateTelegramAuthUI(null);
+        setTelegramMessage(loginError.message||t('telegramError'),true);
+        return;
+      }
     }
     if(!response.ok){
       updateTelegramAuthUI(null);
-      if(isTelegramMiniAppContext()){
-        setTelegramMessage('Telegram відкрив застосунок, але не передав дані входу. Закрийте Mini App і відкрийте його знову через кнопку бота.',true);
-      }
+      setTelegramMessage(t('telegramError'),true);
       return;
     }
     const data=await response.json();
@@ -337,10 +344,9 @@ async function initTelegramAuth(){
   }catch(error){
     console.error('Telegram auth initialization failed:',error);
     updateTelegramAuthUI(null);
-    setTelegramMessage(`${t('telegramError')}: ${error.message}`,true);
+    setTelegramMessage(error.message||t('telegramError'),true);
   }
 }
-
 
 let imageViewerScale=1,imageViewerX=0,imageViewerY=0,imageViewerStartDistance=0,imageViewerStartScale=1,imageViewerDragging=false,imageViewerStartX=0,imageViewerStartY=0,imageViewerBaseX=0,imageViewerBaseY=0,imageViewerLastTap=0;
 function applyImageViewerTransform(){const img=$('#modalImage');if(!img)return;img.style.transform=`translate3d(${imageViewerX}px,${imageViewerY}px,0) scale(${imageViewerScale})`;img.classList.toggle('is-zoomed',imageViewerScale>1.01)}
