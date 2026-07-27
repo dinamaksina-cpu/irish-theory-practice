@@ -221,65 +221,33 @@ function setTelegramMessage(text='',isError=false){
   el.classList.toggle('error',isError);
 }
 function updateTelegramAuthUI(user){
-  const loggedIn=Boolean(user?.telegram_id||user?.id);
+  const loggedIn=Boolean(user?.id);
   $('#telegramLoginBtn')?.classList.toggle('hidden',loggedIn);
   $('#telegramUserInfo')?.classList.toggle('hidden',!loggedIn);
-  if(!loggedIn)return;
-  const name=telegramDisplayName(user);
-  const username=user?.preferred_username||user?.username||'';
-  const premium=user?.telegram_premium===true;
-  const nameEl=$('#telegramUserName');
-  if(nameEl)nameEl.textContent=name;
-  const metaEl=$('#telegramUserMeta');
-  if(metaEl)metaEl.textContent=[username?`@${username}`:'',premium?'Telegram Premium':''].filter(Boolean).join(' · ');
-  const avatar=$('#telegramAvatar');
-  if(avatar){
-    const picture=user?.picture||'';
-    avatar.classList.toggle('hidden',!picture);
-    if(picture)avatar.src=picture;else avatar.removeAttribute('src');
-  }
-  setTelegramMessage('');
-}
-async function loginFromTelegramMiniApp(){
-  const tg=window.Telegram?.WebApp;
-  const initData=tg?.initData||'';
-  if(!initData)return false;
-  tg.ready();
-  tg.expand();
-  const response=await fetch('/api/telegram-miniapp-login',{
-    method:'POST',
-    credentials:'same-origin',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({initData})
-  });
-  const body=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(body.error||'Telegram Mini App login failed');
-  return true;
-}
-async function loadTelegramAccount(){
-  const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-  if(!response.ok)return null;
-  const data=await response.json();
-  telegramUser=data.user||null;
-  isPremium=Boolean(data.is_premium);
-  demoExamAttempts=Number(data.demo_exam_attempts||0);
-  updateTelegramAuthUI(telegramUser);
-  updateHome();
-  updatePremiumHero();
-  if(telegramUser)await initializeCloudProgress(telegramUser);
-  return data;
+  
+  if(loggedIn)setTelegramMessage('');
 }
 async function signInWithTelegram(){
   setTelegramMessage(t('telegramSigningIn'));
   try{
-    if(window.Telegram?.WebApp?.initData){
+    const tg=window.Telegram?.WebApp;
+    if(tg?.initData){
       await loginFromTelegramMiniApp();
-      await loadTelegramAccount();
+      const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+      if(!response.ok)throw new Error(await response.text());
+      const data=await response.json();
+      isPremium=Boolean(data.is_premium);
+      demoExamAttempts=Number(data.demo_exam_attempts||0);
+      updateTelegramAuthUI(data.user||null);
+      updateHome();
+      updatePremiumHero();
+      if(data.user)await initializeCloudProgress(data.user);
       return;
     }
+    // OAuth is used only when the site is opened outside Telegram.
     window.location.assign('/api/telegram-login');
   }catch(error){
-    console.error(error);
+    console.error('Telegram sign-in failed',error);
     setTelegramMessage(t('telegramError'),true);
   }
 }
@@ -293,17 +261,45 @@ async function signOutTelegram(){
     setTelegramMessage(t('telegramError'),true);
   }
 }
+async function loginFromTelegramMiniApp(){
+  const tg=window.Telegram?.WebApp;
+  const initData=tg?.initData||'';
+  if(!initData)return false;
+  tg.ready();
+  tg.expand();
+  const response=await fetch('/api/telegram-miniapp-login',{
+    method:'POST',
+    credentials:'same-origin',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({initData})
+  });
+  if(!response.ok)throw new Error(await response.text());
+  return true;
+}
 async function initTelegramAuth(){
   $('#telegramLoginBtn').onclick=signInWithTelegram;
   $('#telegramLogoutBtn').onclick=signOutTelegram;
   try{
-    let data=await loadTelegramAccount();
-    if(!data&&window.Telegram?.WebApp?.initData){
-      setTelegramMessage(t('telegramSigningIn'));
-      await loginFromTelegramMiniApp();
-      data=await loadTelegramAccount();
+    const tg=window.Telegram?.WebApp;
+    tg?.ready();
+    tg?.expand();
+
+    let response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+    if(response.status===401){
+      // Telegram can populate initData a moment after the page script starts on iOS.
+      for(let attempt=0;attempt<10&&!window.Telegram?.WebApp?.initData;attempt++){
+        await new Promise(resolve=>setTimeout(resolve,150));
+      }
+      if(window.Telegram?.WebApp?.initData){
+        setTelegramMessage(t('telegramSigningIn'));
+        await loginFromTelegramMiniApp();
+        response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+      }
     }
-    if(!data)updateTelegramAuthUI(null);
+    if(!response.ok){updateTelegramAuthUI(null);return}
+    const data=await response.json();
+    isPremium=Boolean(data.is_premium);demoExamAttempts=Number(data.demo_exam_attempts||0);updateTelegramAuthUI(data.user||null);updateHome();updatePremiumHero();
+    if(data.user)await initializeCloudProgress(data.user);
     const url=new URL(window.location.href);
     if(url.searchParams.has('telegram_login')){
       url.searchParams.delete('telegram_login');
@@ -315,6 +311,7 @@ async function initTelegramAuth(){
     setTelegramMessage(t('telegramError'),true);
   }
 }
+
 
 let imageViewerScale=1,imageViewerX=0,imageViewerY=0,imageViewerStartDistance=0,imageViewerStartScale=1,imageViewerDragging=false,imageViewerStartX=0,imageViewerStartY=0,imageViewerBaseX=0,imageViewerBaseY=0,imageViewerLastTap=0;
 function applyImageViewerTransform(){const img=$('#modalImage');if(!img)return;img.style.transform=`translate3d(${imageViewerX}px,${imageViewerY}px,0) scale(${imageViewerScale})`;img.classList.toggle('is-zoomed',imageViewerScale>1.01)}
