@@ -227,27 +227,46 @@ function updateTelegramAuthUI(user){
   
   if(loggedIn)setTelegramMessage('');
 }
+async function loginFromTelegramMiniApp(){
+  const tg=window.Telegram?.WebApp;
+  const initData=tg?.initData||'';
+  if(!initData)throw new Error('Telegram Mini App initData is unavailable');
+  tg.ready();
+  tg.expand();
+  const response=await fetch('/api/telegram-miniapp-login',{
+    method:'POST',
+    credentials:'same-origin',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({initData})
+  });
+  if(!response.ok)throw new Error(await response.text());
+  return response.json();
+}
+async function loadTelegramAccount(){
+  const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+  if(!response.ok)throw new Error(await response.text());
+  const data=await response.json();
+  telegramUser=data.user||null;
+  isPremium=Boolean(data.is_premium);
+  demoExamAttempts=Number(data.demo_exam_attempts||0);
+  updateTelegramAuthUI(telegramUser);
+  updateHome();
+  updatePremiumHero();
+  if(telegramUser)await initializeCloudProgress(telegramUser);
+}
 async function signInWithTelegram(){
   setTelegramMessage(t('telegramSigningIn'));
   try{
-    const tg=window.Telegram?.WebApp;
-    if(tg?.initData){
+    if(window.Telegram?.WebApp?.initData){
       await loginFromTelegramMiniApp();
-      const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-      if(!response.ok)throw new Error(await response.text());
-      const data=await response.json();
-      isPremium=Boolean(data.is_premium);
-      demoExamAttempts=Number(data.demo_exam_attempts||0);
-      updateTelegramAuthUI(data.user||null);
-      updateHome();
-      updatePremiumHero();
-      if(data.user)await initializeCloudProgress(data.user);
+      await loadTelegramAccount();
+      setTelegramMessage('');
       return;
     }
-    // OAuth is used only when the site is opened outside Telegram.
+    // Outside Telegram only: use the browser OAuth flow.
     window.location.assign('/api/telegram-login');
   }catch(error){
-    console.error('Telegram sign-in failed',error);
+    console.error('Telegram sign-in failed:',error);
     setTelegramMessage(t('telegramError'),true);
   }
 }
@@ -261,21 +280,6 @@ async function signOutTelegram(){
     setTelegramMessage(t('telegramError'),true);
   }
 }
-async function loginFromTelegramMiniApp(){
-  const tg=window.Telegram?.WebApp;
-  const initData=tg?.initData||'';
-  if(!initData)return false;
-  tg.ready();
-  tg.expand();
-  const response=await fetch('/api/telegram-miniapp-login',{
-    method:'POST',
-    credentials:'same-origin',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({initData})
-  });
-  if(!response.ok)throw new Error(await response.text());
-  return true;
-}
 async function initTelegramAuth(){
   $('#telegramLoginBtn').onclick=signInWithTelegram;
   $('#telegramLogoutBtn').onclick=signOutTelegram;
@@ -285,28 +289,31 @@ async function initTelegramAuth(){
     tg?.expand();
 
     let response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-    if(response.status===401){
-      // Telegram can populate initData a moment after the page script starts on iOS.
-      for(let attempt=0;attempt<10&&!window.Telegram?.WebApp?.initData;attempt++){
-        await new Promise(resolve=>setTimeout(resolve,150));
-      }
-      if(window.Telegram?.WebApp?.initData){
-        setTelegramMessage(t('telegramSigningIn'));
-        await loginFromTelegramMiniApp();
-        response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-      }
+    if(response.status===401&&tg?.initData){
+      setTelegramMessage(t('telegramSigningIn'));
+      await loginFromTelegramMiniApp();
+      response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
     }
-    if(!response.ok){updateTelegramAuthUI(null);return}
+    if(!response.ok){
+      updateTelegramAuthUI(null);
+      return;
+    }
     const data=await response.json();
-    isPremium=Boolean(data.is_premium);demoExamAttempts=Number(data.demo_exam_attempts||0);updateTelegramAuthUI(data.user||null);updateHome();updatePremiumHero();
-    if(data.user)await initializeCloudProgress(data.user);
+    telegramUser=data.user||null;
+    isPremium=Boolean(data.is_premium);
+    demoExamAttempts=Number(data.demo_exam_attempts||0);
+    updateTelegramAuthUI(telegramUser);
+    updateHome();
+    updatePremiumHero();
+    if(telegramUser)await initializeCloudProgress(telegramUser);
+    setTelegramMessage('');
     const url=new URL(window.location.href);
     if(url.searchParams.has('telegram_login')){
       url.searchParams.delete('telegram_login');
       window.history.replaceState({},document.title,url.pathname+url.search+url.hash);
     }
   }catch(error){
-    console.error(error);
+    console.error('Telegram auth initialization failed:',error);
     updateTelegramAuthUI(null);
     setTelegramMessage(t('telegramError'),true);
   }
