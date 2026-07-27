@@ -241,11 +241,31 @@ async function signOutTelegram(){
     setTelegramMessage(t('telegramError'),true);
   }
 }
+async function loginFromTelegramMiniApp(){
+  const tg=window.Telegram?.WebApp;
+  const initData=tg?.initData||'';
+  if(!initData)return false;
+  tg.ready();
+  tg.expand();
+  const response=await fetch('/api/telegram-miniapp-login',{
+    method:'POST',
+    credentials:'same-origin',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({initData})
+  });
+  if(!response.ok)throw new Error(await response.text());
+  return true;
+}
 async function initTelegramAuth(){
   $('#telegramLoginBtn').onclick=signInWithTelegram;
   $('#telegramLogoutBtn').onclick=signOutTelegram;
   try{
-    const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+    let response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+    if(response.status===401&&window.Telegram?.WebApp?.initData){
+      setTelegramMessage(t('telegramSigningIn'));
+      await loginFromTelegramMiniApp();
+      response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
+    }
     if(!response.ok){updateTelegramAuthUI(null);return}
     const data=await response.json();
     isPremium=Boolean(data.is_premium);demoExamAttempts=Number(data.demo_exam_attempts||0);updateTelegramAuthUI(data.user||null);updateHome();updatePremiumHero();
@@ -258,6 +278,7 @@ async function initTelegramAuth(){
   }catch(error){
     console.error(error);
     updateTelegramAuthUI(null);
+    setTelegramMessage(t('telegramError'),true);
   }
 }
 
