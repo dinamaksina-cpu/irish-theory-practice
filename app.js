@@ -261,6 +261,8 @@ function updateTelegramAuthUI(user){
 
   loginBtn?.classList.toggle('hidden',loggedIn);
   userInfo?.classList.toggle('hidden',!loggedIn);
+  $('#localProfileRow')?.classList.toggle('hidden',loggedIn);
+  $('#createProfileBtn')?.classList.toggle('hidden',loggedIn);
 
   if(loggedIn){
     if(nameEl)nameEl.textContent=telegramDisplayName(user);
