@@ -316,3 +316,7 @@ body.modal-open{overflow:hidden;touch-action:none}
     font-size:14px;
   }
 }
+
+.telegram-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;flex:0 0 42px;background:var(--line)}
+.telegram-user-copy{flex:1;min-width:0}
+.telegram-user-meta{display:block;margin-top:2px;color:var(--muted);font-size:10px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

@@ -55,9 +55,11 @@
               <span data-i18n="telegramLogin">Увійти через Telegram</span>
             </button>
             <div id="telegramUserInfo" class="telegram-user-info hidden">
-              <div class="telegram-user-copy telegram-status-copy">
-                <span class="telegram-status-dot" aria-hidden="true"></span>
+              <img id="telegramAvatar" class="telegram-avatar hidden" alt="Telegram profile photo">
+              <div class="telegram-user-copy">
                 <small data-i18n="telegramConnected">Telegram підключено</small>
+                <strong id="telegramUserName">Telegram user</strong>
+                <span id="telegramUserMeta" class="telegram-user-meta"></span>
               </div>
               <button id="telegramLogoutBtn" class="telegram-logout-btn" type="button" data-i18n="logout">Вийти</button>
             </div>
@@ -209,7 +211,6 @@
       <small>Оплата буде підключена на наступному етапі</small>
     </div>
   </div>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body>
