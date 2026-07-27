@@ -227,25 +227,44 @@ function updateTelegramAuthUI(user){
   
   if(loggedIn)setTelegramMessage('');
 }
+function telegramWebApp(){
+  return window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+}
+function isTelegramMiniAppContext(){
+  const tg=telegramWebApp();
+  return Boolean(tg && tg.platform && tg.platform !== 'unknown');
+}
+async function waitForTelegramInitData(timeoutMs=5000){
+  const started=Date.now();
+  while(Date.now()-started<timeoutMs){
+    const tg=telegramWebApp();
+    if(tg?.initData)return tg.initData;
+    await new Promise(resolve=>setTimeout(resolve,150));
+  }
+  return '';
+}
 async function loginFromTelegramMiniApp(){
-  const tg=window.Telegram?.WebApp;
-  const initData=tg?.initData||'';
-  if(!initData)throw new Error('Telegram Mini App initData is unavailable');
+  const tg=telegramWebApp();
+  if(!tg)throw new Error('Telegram WebApp SDK is unavailable');
   tg.ready();
   tg.expand();
+  const initData=await waitForTelegramInitData();
+  if(!initData)throw new Error('Telegram did not provide Mini App initData');
   const response=await fetch('/api/telegram-miniapp-login',{
     method:'POST',
     credentials:'same-origin',
+    cache:'no-store',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({initData})
   });
-  if(!response.ok)throw new Error(await response.text());
-  return response.json();
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||`Telegram login failed (${response.status})`);
+  return data;
 }
 async function loadTelegramAccount(){
   const response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-  if(!response.ok)throw new Error(await response.text());
-  const data=await response.json();
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||`Could not load account (${response.status})`);
   telegramUser=data.user||null;
   isPremium=Boolean(data.is_premium);
   demoExamAttempts=Number(data.demo_exam_attempts||0);
@@ -257,17 +276,17 @@ async function loadTelegramAccount(){
 async function signInWithTelegram(){
   setTelegramMessage(t('telegramSigningIn'));
   try{
-    if(window.Telegram?.WebApp?.initData){
+    if(isTelegramMiniAppContext()){
       await loginFromTelegramMiniApp();
       await loadTelegramAccount();
       setTelegramMessage('');
       return;
     }
-    // Outside Telegram only: use the browser OAuth flow.
+    // OAuth is allowed only in a normal browser, never inside Telegram Mini App.
     window.location.assign('/api/telegram-login');
   }catch(error){
     console.error('Telegram sign-in failed:',error);
-    setTelegramMessage(t('telegramError'),true);
+    setTelegramMessage(`${t('telegramError')}: ${error.message}`,true);
   }
 }
 async function signOutTelegram(){
@@ -284,18 +303,21 @@ async function initTelegramAuth(){
   $('#telegramLoginBtn').onclick=signInWithTelegram;
   $('#telegramLogoutBtn').onclick=signOutTelegram;
   try{
-    const tg=window.Telegram?.WebApp;
+    const tg=telegramWebApp();
     tg?.ready();
     tg?.expand();
 
     let response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
-    if(response.status===401&&tg?.initData){
+    if(response.status===401&&isTelegramMiniAppContext()){
       setTelegramMessage(t('telegramSigningIn'));
       await loginFromTelegramMiniApp();
       response=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});
     }
     if(!response.ok){
       updateTelegramAuthUI(null);
+      if(isTelegramMiniAppContext()){
+        setTelegramMessage('Telegram відкрив застосунок, але не передав дані входу. Закрийте Mini App і відкрийте його знову через кнопку бота.',true);
+      }
       return;
     }
     const data=await response.json();
@@ -315,7 +337,7 @@ async function initTelegramAuth(){
   }catch(error){
     console.error('Telegram auth initialization failed:',error);
     updateTelegramAuthUI(null);
-    setTelegramMessage(t('telegramError'),true);
+    setTelegramMessage(`${t('telegramError')}: ${error.message}`,true);
   }
 }
 
