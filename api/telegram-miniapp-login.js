@@ -54,7 +54,11 @@ module.exports = async function handler(req, res) {
       telegram_id: String(telegramUser.id),
       name: [telegramUser.first_name, telegramUser.last_name].filter(Boolean).join(' ') || telegramUser.username || 'Telegram user',
       preferred_username: telegramUser.username || '',
-      picture: telegramUser.photo_url || ''
+      username: telegramUser.username || '',
+      picture: telegramUser.photo_url || '',
+      language_code: telegramUser.language_code || '',
+      telegram_premium: telegramUser.is_premium === true,
+      allows_write_to_pm: telegramUser.allows_write_to_pm === true
     };
 
     res.setHeader('Set-Cookie', cookie('dtt_session', createSession(user), {

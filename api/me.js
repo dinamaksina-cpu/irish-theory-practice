@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
   if (!user) return res.status(401).json({ user: null, is_premium: false, demo_exam_attempts: 0 });
   if (!SERVICE_KEY) return res.status(500).json({ error: 'SUPABASE_SERVICE_ROLE_KEY is missing' });
 
-  const telegramId = String(user.id || user.telegram_id || '');
+  const telegramId = String(user.telegram_id || user.id || '');
   try {
     const url = `${SUPABASE_URL}/rest/v1/user_progress?telegram_id=eq.${encodeURIComponent(telegramId)}&select=is_premium,demo_exam_attempts&limit=1`;
     const response = await fetch(url, { headers: headers() });
@@ -26,6 +26,7 @@ module.exports = async function handler(req, res) {
     const access = rows[0] || {};
     return res.status(200).json({
       user,
+      telegram_premium: user.telegram_premium === true,
       is_premium: Boolean(access.is_premium),
       demo_exam_attempts: Number(access.demo_exam_attempts || 0)
     });

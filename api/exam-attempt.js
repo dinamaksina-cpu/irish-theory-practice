@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
   if (!user) return res.status(401).json({ error: 'Unauthorized', demo_exam_attempts: 0 });
   if (!SERVICE_KEY) return res.status(500).json({ error: 'SUPABASE_SERVICE_ROLE_KEY is missing' });
 
-  const telegramId = String(user.id || user.telegram_id || '');
+  const telegramId = String(user.telegram_id || user.id || '');
   if (!telegramId) return res.status(400).json({ error: 'Telegram ID is missing' });
 
   try {
