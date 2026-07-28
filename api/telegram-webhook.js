@@ -7,8 +7,9 @@ function appUrl() {
 function messageFor(command) {
   const messages = {
     '/start': {
-      text: '👋 Вітаємо!\n\n🇮🇪 Натисніть «Відкрити застосунок», щоб розпочати підготовку до теоретичного іспиту з водіння в Ірландії.',
-      button: '🚗 Відкрити застосунок'
+      text: '👋 Ласкаво просимо до Irish Driving Theory Test!\n\n🇮🇪 Готуйтеся до теоретичного іспиту з водіння в Ірландії.\n\n✅ 801 питання\n✅ Режим офіційного іспиту\n✅ Робота над помилками\n✅ Закладки та статистика\n✅ Збереження і синхронізація прогресу\n\n🚗 Оберіть зручний спосіб навчання:',
+      button: '🚗 Відкрити мінізастосунок',
+      showWebVersion: true
     },
     '/continue': {
       text: '▶️ Продовжуйте навчання з останнього збереженого питання.',
@@ -43,14 +44,10 @@ async function sendMessage(token, chatId, payload) {
       chat_id: chatId,
       text: payload.text,
       reply_markup: {
-        inline_keyboard: [[
-          {
-            text: payload.button,
-            web_app: {
-              url: appUrl()
-            }
-          }
-        ]]
+        inline_keyboard: [
+          [{ text: payload.button, web_app: { url: appUrl() } }],
+          ...(payload.showWebVersion ? [[{ text: '🌐 Відкрити повний сайт', url: appUrl() }]] : [])
+        ]
       }
     })
   });
