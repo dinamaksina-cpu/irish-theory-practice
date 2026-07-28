@@ -334,3 +334,13 @@ body.modal-open{overflow:hidden;touch-action:none}
 .avatar .hidden{display:none!important}
 .telegram-status-copy{display:flex;align-items:center}
 #localProfileControls.hidden,#createProfileBtn.hidden{display:none!important}
+
+/* Add to home screen */
+.install-app-card{margin-top:18px;padding:22px 24px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;border:1px solid rgba(22,154,80,.16);background:linear-gradient(135deg,rgba(235,249,241,.95),rgba(247,252,249,.98))}
+.install-app-icon{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;font-size:27px;background:#fff;box-shadow:0 10px 24px rgba(10,82,46,.1)}
+.install-app-copy span{font-size:10px;font-weight:900;letter-spacing:.16em;color:#169a50}.install-app-copy h2{margin:4px 0 5px;font-size:20px}.install-app-copy p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+.install-app-btn{min-height:46px;padding:0 18px;border:0;border-radius:15px;background:var(--ink);color:var(--surface);font-weight:850}
+.install-guide-card{position:relative;max-width:520px;text-align:left;padding:30px 26px 24px}.install-guide-card .modal-close{position:absolute;right:18px;top:16px}.install-guide-icon{font-size:38px;margin-bottom:8px}.install-guide-card h2{margin:0 38px 18px 0;font-size:25px}
+.install-guide-steps{padding:16px 17px;border-radius:18px;background:var(--soft);margin-top:12px}.install-guide-steps h3{margin:0 0 8px;font-size:16px}.install-guide-steps ol{margin:0;padding-left:21px;color:var(--muted);font-size:14px;line-height:1.6}.install-guide-note{margin:16px 2px 0;color:var(--muted);font-size:12px;line-height:1.5}#nativeInstallBtn{width:100%;margin-top:16px}
+.dark .install-app-card{background:linear-gradient(135deg,rgba(14,72,44,.58),rgba(22,35,29,.95));border-color:rgba(72,195,126,.22)}
+@media(max-width:720px){.install-app-card{grid-template-columns:auto 1fr;padding:18px}.install-app-btn{grid-column:1/-1;width:100%}.install-app-copy h2{font-size:18px}}

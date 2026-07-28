@@ -71,6 +71,16 @@
         </section>
       </section>
 
+      <section class="card install-app-card">
+        <div class="install-app-icon" aria-hidden="true">📲</div>
+        <div class="install-app-copy">
+          <span>ШВИДКИЙ ДОСТУП</span>
+          <h2>Додайте на головний екран</h2>
+          <p>Відкривайте сайт як звичайний застосунок — одним натисканням.</p>
+        </div>
+        <button id="openInstallGuide" class="install-app-btn" type="button">Як додати</button>
+      </section>
+
       <div class="section-heading premium-section-heading"><div><span>QUICK ACCESS</span><h2 id="quickAccessTitle">Швидкий доступ</h2></div></div>
       <section class="mode-grid">
         <button class="mode-card featured" data-mode="all"><span class="mode-icon green"><svg><use href="#i-book"/></svg></span><span class="mode-content"><b data-i18n="allQuestions">Усі питання</b><small id="allProgress">0 / 60</small><em id="allAccessHint" class="access-hint">Перші 60 питань</em></span><i>→</i></button>
@@ -209,6 +219,24 @@
       </div>
       <button id="premiumUpgradeBtn" class="premium-upgrade-btn" type="button">Отримати Premium</button>
       <small>Оплата буде підключена на наступному етапі</small>
+    </div>
+  </div>
+
+  <div id="installGuideModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="installGuideTitle">
+    <div class="modal-card install-guide-card">
+      <button id="closeInstallGuide" class="modal-close" type="button" aria-label="Закрити">×</button>
+      <div class="install-guide-icon">📲</div>
+      <h2 id="installGuideTitle">Додати на головний екран</h2>
+      <div id="iosInstallGuide" class="install-guide-steps">
+        <h3>iPhone / iPad — Safari</h3>
+        <ol><li>Відкрийте повний сайт у Safari.</li><li>Натисніть <b>Поділитися</b>.</li><li>Оберіть <b>«Додати на початковий екран»</b>.</li><li>Натисніть <b>«Додати»</b>.</li></ol>
+      </div>
+      <div id="androidInstallGuide" class="install-guide-steps">
+        <h3>Android — Chrome</h3>
+        <ol><li>Відкрийте повний сайт у Chrome.</li><li>Натисніть меню <b>⋮</b>.</li><li>Оберіть <b>«Додати на головний екран»</b> або <b>«Встановити застосунок»</b>.</li><li>Підтвердьте додавання.</li></ol>
+      </div>
+      <button id="nativeInstallBtn" class="primary hidden" type="button">Встановити застосунок</button>
+      <p class="install-guide-note">У Telegram натисніть «Відкрити повний сайт», а потім додайте його через Safari або Chrome.</p>
     </div>
   </div>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
