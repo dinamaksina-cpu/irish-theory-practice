@@ -64,16 +64,39 @@ const SIGN_EXACT={
   'School ahead':'Школа впереди','School children crossing ahead':'Переход школьников впереди','Children crossing ahead':'Дети переходят дорогу впереди','Road works ahead':'Дорожные работы впереди','Slippery road':'Скользкая дорога','Queues likely':'Возможны пробки','Pedestrian crossing ahead':'Пешеходный переход впереди','Traffic signals ahead':'Светофор впереди','Low-flying aircraft':'Низко летящие самолёты','Wild animals ahead':'Дикие животные впереди','Cattle and farm animals':'Скот и сельскохозяйственные животные','Sheep':'Овцы','Crosswinds':'Боковой ветер','Steep ascent ahead':'Крутой подъём впереди','Steep descent ahead':'Крутой спуск впереди'
  }
 };
+
+Object.assign(SIGN_EXACT.uk,{
+  'Look left':'Подивіться ліворуч',
+  'Look right':'Подивіться праворуч',
+  'Look both sides':'Подивіться в обидва боки',
+  'Slippery for cyclists':'Слизько для велосипедистів',
+  'Tram lane crossing ahead':'Попереду перетин трамвайної смуги',
+  'Tram lane on left':'Трамвайна смуга ліворуч',
+  'Tram lane on right':'Трамвайна смуга праворуч',
+  'Tram-only street':'Вулиця лише для трамваїв',
+  'No entry for pedestrians to tramway':'Пішоходам заборонено виходити на трамвайні колії'
+});
+Object.assign(SIGN_EXACT.ru,{
+  'Look left':'Посмотрите налево',
+  'Look right':'Посмотрите направо',
+  'Look both sides':'Посмотрите в обе стороны',
+  'Slippery for cyclists':'Скользко для велосипедистов',
+  'Tram lane crossing ahead':'Впереди пересечение трамвайной полосы',
+  'Tram lane on left':'Трамвайная полоса слева',
+  'Tram lane on right':'Трамвайная полоса справа',
+  'Tram-only street':'Улица только для трамваев',
+  'No entry for pedestrians to tramway':'Пешеходам запрещён выход на трамвайные пути'
+});
+
 const WORDS={
  uk:[['ahead','попереду'],['advance','попередній'],['direction','напрямок'],['sign','знак'],['road','дорога'],['lane','смуга'],['left','ліворуч'],['right','праворуч'],['entry','в’їзд'],['exit','виїзд'],['motorway','автомагістраль'],['traffic','рух'],['pedestrian','пішохід'],['pedestrians','пішоходи'],['bicycle','велосипед'],['bicycles','велосипеди'],['cycle','велосипедний'],['tram','трамвай'],['bus','автобус'],['school','школа'],['children','діти'],['parking','паркування'],['prohibited','заборонено'],['restriction','обмеження'],['maximum','максимальна'],['minimum','мінімальна'],['speed','швидкість'],['limit','обмеження'],['closed','закрито'],['open','відкрито'],['start','початок'],['end','кінець'],['crossing','перехід'],['works','роботи'],['temporary','тимчасовий'],['information','інформація'],['tourist','туристичний'],['hospital','лікарня'],['airport','аеропорт'],['ferry','пором'],['tunnel','тунель'],['bridge','міст'],['animals','тварини'],['vehicle','транспортний засіб'],['vehicles','транспортні засоби'],['heavy','великоваговий'],['goods','вантажний'],['only','лише'],['no ','заборонено ']],
  ru:[['ahead','впереди'],['advance','предварительный'],['direction','направление'],['sign','знак'],['road','дорога'],['lane','полоса'],['left','налево'],['right','направо'],['entry','въезд'],['exit','съезд'],['motorway','автомагистраль'],['traffic','движение'],['pedestrian','пешеход'],['pedestrians','пешеходы'],['bicycle','велосипед'],['bicycles','велосипеды'],['cycle','велосипедный'],['tram','трамвай'],['bus','автобус'],['school','школа'],['children','дети'],['parking','парковка'],['prohibited','запрещено'],['restriction','ограничение'],['maximum','максимальная'],['minimum','минимальная'],['speed','скорость'],['limit','ограничение'],['closed','закрыто'],['open','открыто'],['start','начало'],['end','конец'],['crossing','переход'],['works','работы'],['temporary','временный'],['information','информация'],['tourist','туристический'],['hospital','больница'],['airport','аэропорт'],['ferry','паром'],['tunnel','тоннель'],['bridge','мост'],['animals','животные'],['vehicle','транспортное средство'],['vehicles','транспортные средства'],['heavy','тяжёлый'],['goods','грузовой'],['only','только'],['no ','запрещено ']]
 };
 function signName(title){
  if(lang==='en') return '';
- const exact=SIGN_EXACT[lang]?.[title]; if(exact) return exact;
- let out=title.toLowerCase();
- for(const [a,b] of WORDS[lang]||[]) out=out.replaceAll(a,b);
- return out.charAt(0).toUpperCase()+out.slice(1);
+ const exact=SIGN_EXACT[lang]?.[title];
+ if(exact) return exact;
+ return lang==='uk' ? 'Переклад готується' : 'Перевод готовится';
 }
 
 const langIndex=()=>lang==='uk'?0:lang==='en'?1:2;
@@ -83,7 +106,7 @@ const $=id=>document.getElementById(id);
 function applyLanguage(){const t=I18N[lang];$('pageTitle').textContent=t.title;$('q').placeholder=t.search;$('backMenu').querySelector('span').textContent=t.menu;document.documentElement.lang=lang;$('langbar').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));renderChips();render()}
 function renderChips(){$('chips').innerHTML=`<button class="chip ${cat==='all'?'active':''}" data-c="all">${I18N[lang].all}</button>`+cats.map(c=>`<button class="chip ${c===cat?'active':''}" data-c="${c}">${catName(c)}</button>`).join('');$('chips').querySelectorAll('button').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderChips();render()})}
 function render(){const s=$('q').value.trim().toLowerCase();filtered=DATA.filter(x=>(cat==='all'||x.category===cat)&&(!s||x.title.toLowerCase().includes(s)||catName(x.category).toLowerCase().includes(s)));$('count').textContent=`${filtered.length} ${I18N[lang].signs}`;$('grid').innerHTML=filtered.map((x,i)=>`<button class="card" data-i="${i}"><span class="card-info" aria-hidden="true">ⓘ</span><div class="pic" data-original="${x.image}"><img loading="lazy" data-original="${x.image}" src="${x.image}" alt="${x.title}" onerror="imageFail(this)"></div><div class="title">${x.title}</div><div class="cat">${lang==='en'?catName(x.category):signName(x.title)}</div></button>`).join('');$('grid').querySelectorAll('.card').forEach(b=>b.onclick=()=>openCard(+b.dataset.i))}
-function openCard(i){current=i;const x=filtered[i],t=I18N[lang];$('detail').innerHTML=`<span class="badge">${catName(x.category)}</span><div class="heroimg" data-original="${x.image}"><img data-original="${x.image}" src="${x.image}" alt="${x.title}" onerror="imageFail(this)"></div><h2>${x.title}</h2>${lang==='en'?'':`<div class="translation">${signName(x.title)}</div>`}<div class="info"><b>${t.meaning}</b><br>${t.meaningText} <b>${x.title}</b>.</div><div class="info"><b>${t.driver}</b><br>${t.driverText}</div><div class="info"><b>${t.tip}</b><br>${t.tipText}</div><div class="nav"><button id="prevBtn">${t.prev}</button><button id="nextBtn">${t.next}</button></div>`;$('prevBtn').onclick=()=>move(-1);$('nextBtn').onclick=()=>move(1);$('overlay').classList.add('open');document.body.classList.add('no-scroll')}
+function openCard(i){current=i;const x=filtered[i],t=I18N[lang];$('detail').innerHTML=`<span class="badge">${catName(x.category)}</span><div class="heroimg" data-original="${x.image}"><img data-original="${x.image}" src="${x.image}" alt="${x.title}" onerror="imageFail(this)"></div><h2>${x.title}</h2>${lang==='en'?'':`<div class="translation">${signName(x.title)}</div>`}<div class="info"><b>${t.meaning}</b><br>${t.meaningText} <b>${x.title}</b>.</div><div class="info"><b>${t.driver}</b><br>${t.driverText}</div><div class="nav"><button id="prevBtn">${t.prev}</button><button id="nextBtn">${t.next}</button></div>`;$('prevBtn').onclick=()=>move(-1);$('nextBtn').onclick=()=>move(1);$('overlay').classList.add('open');document.body.classList.add('no-scroll')}
 function closeModal(){$('overlay').classList.remove('open');document.body.classList.remove('no-scroll')}
 function move(d){if(filtered.length)openCard((current+d+filtered.length)%filtered.length)}
 
