@@ -73,7 +73,7 @@ function resultLabel(key){const labels={examResult:{ua:'Результат іс�
 function resultLines(obj){return resultText(obj).filter(x=>x.text).map(x=>`<div class="result-q-${x.cls}">${escapeHtml(x.text)}</div>`).join('')}
 function primaryText(obj){return obj?.[baseLang()]||obj?.en||''}
 function populateProfiles(){const html=Object.entries(profiles).map(([id,p])=>`<option value="${escapeHtml(id)}">${escapeHtml(p.name)}</option>`).join('');$('#profileSelect').innerHTML=html;$('#drawerProfile').innerHTML=html;$('#profileSelect').value=activeProfileId;$('#drawerProfile').value=activeProfileId}
-function updateHome(){if(!questions.length)return;const p=profile(),s=sets();const allowedIds=new Set(accessibleQuestions().map(q=>q.id));const answered=[...s.answered].filter(id=>allowedIds.has(id)).length,correct=[...s.correct].filter(id=>allowedIds.has(id)).length,mistakes=[...s.mistakes].filter(id=>allowedIds.has(id)).length,bookmarks=[...s.favorites].filter(id=>allowedIds.has(id)).length,total=questions.length;updatePlanUI();const success=answered?Math.round((correct/answered)*100):0;const progress=Math.min(100,Math.round((answered/total)*100));$('#welcomeName').textContent=p.name||'Dina';$('#statsProfileName').textContent=p.name||'Dina';$('#totalCount').textContent=total;$('#favoritesCount').textContent=bookmarks;$('#mistakesCount').textContent=mistakes;$('#allProgress').textContent=`${answered} / ${total}`;animateNumber($('#statAnswered'),answered);$('#statTotal').textContent=total;animateNumber($('#statCorrect'),correct);animateNumber($('#statMistakes'),mistakes);animateNumber($('#statBookmarks'),bookmarks);$('#statSuccess').textContent=`${success}%`;$('#statsProgressBar').style.width=`${progress}%`;$('#successRing').style.setProperty('--success',success);$('#statsRemaining').textContent=baseLang()==='en'?`${Math.max(total-answered,0)} questions remaining`:baseLang()==='ru'?`Осталось ${Math.max(total-answered,0)} вопросов`:`Залишилось ${Math.max(total-answered,0)} питань`;$('#bookmarksLabel').textContent=baseLang()==='en'?'Saved questions':baseLang()==='ru'?'Сохранённые вопросы':'Збережені питання';const a=todayActivity(),todayAccuracy=a.questions?Math.round(a.correct/a.questions*100):0,minutes=Math.floor(a.seconds/60);$('#todayTitle').textContent=baseLang()==='en'?'Today':baseLang()==='ru'?'Сегодня':'Сьогодні';$('#todayQuestionsLabel').textContent=baseLang()==='en'?'Questions':baseLang()==='ru'?'Вопросов':'Питань';$('#todayCorrectLabel').textContent=baseLang()==='en'?'Correct':baseLang()==='ru'?'Правильных':'Правильних';$('#todayAccuracyLabel').textContent=baseLang()==='en'?'Accuracy':baseLang()==='ru'?'Точность':'Точність';$('#todayTimeLabel').textContent=baseLang()==='en'?'Study time':baseLang()==='ru'?'Время обучения':'Час навчання';animateNumber($('#todayQuestions'),a.questions);animateNumber($('#todayCorrect'),a.correct);$('#todayAccuracy').textContent=`${todayAccuracy}%`;$('#todayTime').textContent=baseLang()==='en'?`${minutes} min`:baseLang()==='ru'?`${minutes} мин`:`${minutes} хв`;const motivation=progress>=100?(baseLang()==='en'?'All 801 questions completed!':baseLang()==='ru'?'Все 801 вопрос пройдены!':'Усі 801 питання пройдено!'):progress>=80?(baseLang()==='en'?'Almost there!':baseLang()==='ru'?'Почти готово!':'Майже готово!'):progress>=50?(baseLang()==='en'?'You are getting exam ready.':baseLang()==='ru'?'Вы приближаетесь к готовности.':'Ви наближаєтесь до готовності.'):progress>=20?(baseLang()==='en'?'Great progress!':baseLang()==='ru'?'Отличный прогресс!':'Чудовий прогрес!'):(baseLang()==='en'?'Great start!':baseLang()==='ru'?'Отличное начало!':'Чудовий початок!');$('#motivationText').textContent=motivation;const scores=p.examScores||[];const average=scores.length?scores.reduce((x,y)=>x+y,0)/scores.length:0;const best=scores.length?Math.max(...scores):0;$('#examCount').textContent=scores.length;$('#examAverage').textContent=scores.length?`${average.toFixed(1)}/40`:'—';$('#examBest').textContent=scores.length?`${best}/40`:'—';const readiness=$('#examReadiness');readiness.textContent=baseLang()==='en'?'Continue practice':baseLang()==='ru'?'Продолжить практику':'Продовжити практику';readiness.className='readiness-badge continue-practice';const recent=scores.slice(-7);$('#examHistoryChart').innerHTML=recent.length?recent.map((score,i)=>`<div class="exam-score-bar ${score>=35?'pass':'fail'}" style="--score-height:${Math.max(10,Math.round(score/40*78))}px"><b>${score}</b><span>${scores.length-recent.length+i+1}</span></div>`).join(''):`<div class="empty-chart">${baseLang()==='en'?'Exam results will appear here':baseLang()==='ru'?'Здесь появятся результаты экзаменов':'Тут з’являться результати іспитів'}</div>`;}
+function updateHome(){if(!questions.length)return;const p=profile(),s=sets();const allowedIds=new Set(accessibleQuestions().map(q=>q.id));const answered=[...s.answered].filter(id=>allowedIds.has(id)).length,correct=[...s.correct].filter(id=>allowedIds.has(id)).length,mistakes=[...s.mistakes].filter(id=>allowedIds.has(id)).length,bookmarks=[...s.favorites].filter(id=>allowedIds.has(id)).length,total=questions.length;updatePlanUI();const success=answered?Math.round((correct/answered)*100):0;const progress=Math.min(100,Math.round((answered/total)*100));const displayName=telegramUser?telegramDisplayName(telegramUser):(p.name||'Dina');$('#welcomeName').textContent=displayName;$('#statsProfileName').textContent=displayName;$('#totalCount').textContent=total;$('#favoritesCount').textContent=bookmarks;$('#mistakesCount').textContent=mistakes;$('#allProgress').textContent=`${answered} / ${total}`;animateNumber($('#statAnswered'),answered);$('#statTotal').textContent=total;animateNumber($('#statCorrect'),correct);animateNumber($('#statMistakes'),mistakes);animateNumber($('#statBookmarks'),bookmarks);$('#statSuccess').textContent=`${success}%`;$('#statsProgressBar').style.width=`${progress}%`;$('#successRing').style.setProperty('--success',success);$('#statsRemaining').textContent=baseLang()==='en'?`${Math.max(total-answered,0)} questions remaining`:baseLang()==='ru'?`Осталось ${Math.max(total-answered,0)} вопросов`:`Залишилось ${Math.max(total-answered,0)} питань`;$('#bookmarksLabel').textContent=baseLang()==='en'?'Saved questions':baseLang()==='ru'?'Сохранённые вопросы':'Збережені питання';const a=todayActivity(),todayAccuracy=a.questions?Math.round(a.correct/a.questions*100):0,minutes=Math.floor(a.seconds/60);$('#todayTitle').textContent=baseLang()==='en'?'Today':baseLang()==='ru'?'Сегодня':'Сьогодні';$('#todayQuestionsLabel').textContent=baseLang()==='en'?'Questions':baseLang()==='ru'?'Вопросов':'Питань';$('#todayCorrectLabel').textContent=baseLang()==='en'?'Correct':baseLang()==='ru'?'Правильных':'Правильних';$('#todayAccuracyLabel').textContent=baseLang()==='en'?'Accuracy':baseLang()==='ru'?'Точность':'Точність';$('#todayTimeLabel').textContent=baseLang()==='en'?'Study time':baseLang()==='ru'?'Время обучения':'Час навчання';animateNumber($('#todayQuestions'),a.questions);animateNumber($('#todayCorrect'),a.correct);$('#todayAccuracy').textContent=`${todayAccuracy}%`;$('#todayTime').textContent=baseLang()==='en'?`${minutes} min`:baseLang()==='ru'?`${minutes} мин`:`${minutes} хв`;const motivation=progress>=100?(baseLang()==='en'?'All 801 questions completed!':baseLang()==='ru'?'Все 801 вопрос пройдены!':'Усі 801 питання пройдено!'):progress>=80?(baseLang()==='en'?'Almost there!':baseLang()==='ru'?'Почти готово!':'Майже готово!'):progress>=50?(baseLang()==='en'?'You are getting exam ready.':baseLang()==='ru'?'Вы приближаетесь к готовности.':'Ви наближаєтесь до готовності.'):progress>=20?(baseLang()==='en'?'Great progress!':baseLang()==='ru'?'Отличный прогресс!':'Чудовий прогрес!'):(baseLang()==='en'?'Great start!':baseLang()==='ru'?'Отличное начало!':'Чудовий початок!');$('#motivationText').textContent=motivation;const scores=p.examScores||[];const average=scores.length?scores.reduce((x,y)=>x+y,0)/scores.length:0;const best=scores.length?Math.max(...scores):0;$('#examCount').textContent=scores.length;$('#examAverage').textContent=scores.length?`${average.toFixed(1)}/40`:'—';$('#examBest').textContent=scores.length?`${best}/40`:'—';const readiness=$('#examReadiness');readiness.textContent=baseLang()==='en'?'Continue practice':baseLang()==='ru'?'Продолжить практику':'Продовжити практику';readiness.className='readiness-badge continue-practice';const recent=scores.slice(-7);$('#examHistoryChart').innerHTML=recent.length?recent.map((score,i)=>`<div class="exam-score-bar ${score>=35?'pass':'fail'}" style="--score-height:${Math.max(10,Math.round(score/40*78))}px"><b>${score}</b><span>${scores.length-recent.length+i+1}</span></div>`).join(''):`<div class="empty-chart">${baseLang()==='en'?'Exam results will appear here':baseLang()==='ru'?'Здесь появятся результаты экзаменов':'Тут з’являться результати іспитів'}</div>`;}
 function openAllChoice(){const hasLast=(profile().last||0)>0;$('#startChoiceTitle').textContent=t('allQuestions');$('#startChoiceText').textContent=t('whereStart');$('#startFromFirst').textContent=t('startFirst');$('#startFromLast').textContent=t('startLast');$('#cancelStartChoice').textContent=t('cancel');$('#startFromLast').classList.toggle('hidden',!hasLast);$('#startChoiceModal').classList.remove('hidden')}
 function closeAllChoice(){$('#startChoiceModal').classList.add('hidden')}
 function examAnsweredCount(state=profile().incompleteExam){return state?.answers?.filter(v=>Number.isInteger(v)).length||0}
@@ -256,34 +256,38 @@ function updateTelegramAuthUI(user){
   const loggedIn=Boolean(user?.id);
   const loginBtn=$('#telegramLoginBtn');
   const userInfo=$('#telegramUserInfo');
-  const nameEl=$('#telegramUserName');
-  const avatarEl=$('#telegramUserAvatar');
+  const localControls=$('#localProfileControls');
+  const createBtn=$('#createProfileBtn');
+  const headerImg=$('#welcomeAvatarImg');
+  const headerIcon=$('#welcomeAvatarIcon');
 
   loginBtn?.classList.toggle('hidden',loggedIn);
   userInfo?.classList.toggle('hidden',!loggedIn);
-  $('#localProfileRow')?.classList.toggle('hidden',loggedIn);
-  $('#createProfileBtn')?.classList.toggle('hidden',loggedIn);
+  localControls?.classList.toggle('hidden',loggedIn);
+  createBtn?.classList.toggle('hidden',loggedIn);
 
   if(loggedIn){
-    if(nameEl)nameEl.textContent=telegramDisplayName(user);
-
     const photo=user?.photo_url||user?.picture||'';
-    if(avatarEl){
+    if($('#welcomeName'))$('#welcomeName').textContent=telegramDisplayName(user);
+    if(headerImg){
       if(photo){
-        avatarEl.src=photo;
-        avatarEl.classList.remove('hidden');
+        headerImg.src=photo;
+        headerImg.classList.remove('hidden');
+        headerIcon?.classList.add('hidden');
       }else{
-        avatarEl.removeAttribute('src');
-        avatarEl.classList.add('hidden');
+        headerImg.removeAttribute('src');
+        headerImg.classList.add('hidden');
+        headerIcon?.classList.remove('hidden');
       }
     }
     setTelegramMessage('');
   }else{
-    if(nameEl)nameEl.textContent='';
-    if(avatarEl){
-      avatarEl.removeAttribute('src');
-      avatarEl.classList.add('hidden');
+    if(headerImg){
+      headerImg.removeAttribute('src');
+      headerImg.classList.add('hidden');
     }
+    headerIcon?.classList.remove('hidden');
+    if($('#welcomeName'))$('#welcomeName').textContent=profile().name||'Dina';
   }
 }
 async function loginFromTelegramMiniApp(){

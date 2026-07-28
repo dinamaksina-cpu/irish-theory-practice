@@ -328,3 +328,9 @@ body.modal-open{overflow:hidden;touch-action:none}
 .telegram-user-copy b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .telegram-connected-row{display:flex;align-items:center;gap:6px;min-width:0}
 .telegram-connected-row small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Telegram profile: one identity in header, local profiles remain available when signed out */
+.welcome-avatar-img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}
+.avatar .hidden{display:none!important}
+.telegram-status-copy{display:flex;align-items:center}
+#localProfileControls.hidden,#createProfileBtn.hidden{display:none!important}

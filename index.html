@@ -26,7 +26,7 @@
     <main id="homeView" class="home-view">
       <header class="home-topbar">
         <div class="welcome">
-          <div class="avatar"><svg><use href="#i-user"/></svg></div>
+          <div class="avatar"><img id="welcomeAvatarImg" class="welcome-avatar-img hidden" src="" alt=""><svg id="welcomeAvatarIcon"><use href="#i-user"/></svg></div>
           <div><small>Irish Driving Theory</small><strong id="welcomeName">Вітаємо!</strong><span id="planBadge" class="plan-badge">Безкоштовний</span></div>
         </div>
         <button id="themeBtn" class="round-btn" type="button" aria-label="Theme"><svg><use href="#i-moon"/></svg></button>
@@ -48,16 +48,14 @@
       <section class="home-control-grid">
         <section class="card profile-card">
           <div class="section-title-row"><h2 data-i18n="profile">Профіль</h2><button id="createProfileBtn" class="text-btn" type="button" data-i18n="createProfile">+ Створити</button></div>
-          <div id="localProfileRow" class="profile-row"><div class="profile-avatar"><svg><use href="#i-user"/></svg></div><div class="profile-main"><select id="profileSelect" aria-label="Profile"></select><span class="profile-plan" data-i18n="premiumPlan">Premium</span><small data-i18n="progressSaved">Прогрес автоматично зберігається</small></div></div>
+          <div id="localProfileControls" class="profile-row"><div class="profile-avatar"><svg><use href="#i-user"/></svg></div><div class="profile-main"><select id="profileSelect" aria-label="Profile"></select><span class="profile-plan" data-i18n="premiumPlan">Premium</span><small data-i18n="progressSaved">Прогрес автоматично зберігається</small></div></div>
           <div class="telegram-auth">
             <button id="telegramLoginBtn" class="telegram-login-btn" type="button">
               <span class="telegram-icon" aria-hidden="true">✈</span>
               <span data-i18n="telegramLogin">Увійти через Telegram</span>
             </button>
             <div id="telegramUserInfo" class="telegram-user-info hidden">
-              <img id="telegramUserAvatar" class="telegram-user-avatar hidden" src="" alt="Telegram avatar">
-              <div class="telegram-user-copy">
-                <b id="telegramUserName">Telegram user</b>
+              <div class="telegram-user-copy telegram-status-copy">
                 <span class="telegram-connected-row">
                   <span class="telegram-status-dot" aria-hidden="true"></span>
                   <small data-i18n="telegramConnected">Telegram підключено</small>
