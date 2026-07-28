@@ -7,9 +7,9 @@ function appUrl() {
 function messageFor(command) {
   const messages = {
     '/start': {
-      text: '👋 Вітаємо!\n\nОберіть, де вам зручніше продовжити підготовку до Irish Driving Theory Test:',
+      text: '👋 Вітаємо!\n\nОберіть, як вам зручніше користуватися Irish Driving Theory Test:',
       button: '🚗 Відкрити мінізастосунок',
-      showWebVersion: true
+      showStartLinks: true
     },
     '/continue': {
       text: '▶️ Продовжуйте навчання з останнього збереженого питання.',
@@ -37,18 +37,22 @@ function messageFor(command) {
 }
 
 async function sendMessage(token, chatId, payload) {
+  const keyboard = [
+    [{ text: payload.button, web_app: { url: appUrl() } }]
+  ];
+
+  if (payload.showStartLinks) {
+    keyboard.push([{ text: '🌐 Відкрити повний сайт', url: appUrl() }]);
+    keyboard.push([{ text: '📲 Як додати сайт на головний екран', url: `${appUrl()}/install.html` }]);
+  }
+
   const response = await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
       text: payload.text,
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: payload.button, web_app: { url: appUrl() } }],
-          ...(payload.showWebVersion ? [[{ text: '🌐 Відкрити повний сайт', url: appUrl() }]] : [])
-        ]
-      }
+      reply_markup: { inline_keyboard: keyboard }
     })
   });
 
@@ -60,31 +64,19 @@ async function sendMessage(token, chatId, payload) {
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({
-      ok: false,
-      error: 'Method not allowed'
-    });
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
-
   if (!token) {
-    return res.status(500).json({
-      ok: false,
-      error: 'TELEGRAM_BOT_TOKEN is missing'
-    });
+    return res.status(500).json({ ok: false, error: 'TELEGRAM_BOT_TOKEN is missing' });
   }
 
   const configuredSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
-
   if (configuredSecret) {
     const receivedSecret = req.headers['x-telegram-bot-api-secret-token'];
-
     if (receivedSecret !== configuredSecret) {
-      return res.status(401).json({
-        ok: false,
-        error: 'Invalid webhook secret'
-      });
+      return res.status(401).json({ ok: false, error: 'Invalid webhook secret' });
     }
   }
 
@@ -93,45 +85,20 @@ module.exports = async function handler(req, res) {
     const message = update.message;
 
     if (!message || !message.chat || typeof message.text !== 'string') {
-      return res.status(200).json({
-        ok: true,
-        ignored: true
-      });
+      return res.status(200).json({ ok: true, ignored: true });
     }
 
-    const command = message.text
-      .trim()
-      .split(/\s+/)[0]
-      .toLowerCase()
-      .split('@')[0];
-
-    const supported = [
-      '/start',
-      '/continue',
-      '/exam',
-      '/mistakes',
-      '/bookmarks',
-      '/support'
-    ];
+    const command = message.text.trim().split(/\s+/)[0].toLowerCase().split('@')[0];
+    const supported = ['/start', '/continue', '/exam', '/mistakes', '/bookmarks', '/support'];
 
     if (!supported.includes(command)) {
-      return res.status(200).json({
-        ok: true,
-        ignored: true
-      });
+      return res.status(200).json({ ok: true, ignored: true });
     }
 
     await sendMessage(token, message.chat.id, messageFor(command));
-
-    return res.status(200).json({
-      ok: true
-    });
+    return res.status(200).json({ ok: true });
   } catch (error) {
     console.error(error);
-
-    return res.status(500).json({
-      ok: false,
-      error: 'Webhook processing failed'
-    });
+    return res.status(500).json({ ok: false, error: 'Webhook processing failed' });
   }
 };
