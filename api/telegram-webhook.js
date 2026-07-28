@@ -7,7 +7,7 @@ function appUrl() {
 function messageFor(command) {
   const messages = {
     '/start': {
-      text: '👋 Ласкаво просимо до Irish Driving Theory Test!\n\n🇮🇪 Готуйтеся до теоретичного іспиту з водіння в Ірландії.\n\n✅ 801 питання\n✅ Режим офіційного іспиту\n✅ Робота над помилками\n✅ Закладки та статистика\n✅ Збереження і синхронізація прогресу\n\n🚗 Оберіть зручний спосіб навчання:',
+      text: '👋 Вітаємо!\n\nОберіть, де вам зручніше продовжити підготовку до Irish Driving Theory Test:',
       button: '🚗 Відкрити мінізастосунок',
       showWebVersion: true
     },
